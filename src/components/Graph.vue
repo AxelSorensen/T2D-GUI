@@ -241,6 +241,7 @@ export default {
       showStates: false,
       show: [false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false],
       plotting_click: false,
+      responseName: '',
     }
   },
   emits: ["simulate", "cancelSim", "updateSimTime", "updateGraphContent", "updateAdvancedSimPar", "stateDisplayChange", "saveNewResponse", "changeCompare", "importFile", "exportFile", "toMaximize", "updateGlycemiaInterval", "DownloadResponse", "DeleteResponse", "updateOde", "closeOverlay", "toggleVisible"],
@@ -269,6 +270,7 @@ export default {
     },
     saveNewResponse() {
       this.$emit("saveNewResponse", this.$refs['newResponseName'].value)
+      this.$refs["newResponseName"].value = "";
     },
     /**
      * Should the user be able to delete the response

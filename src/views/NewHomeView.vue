@@ -1291,7 +1291,6 @@ grid-row: 3;
 }
 
 #patients {
-  
   align-items: center;
   display: flex;
   justify-content: space-evenly;
@@ -1450,7 +1449,6 @@ i {
 .tooltip {
   font-size: .8em;
   text-align: left;
-  z-index: 100;
 }
 
 .tooltip .tooltiptext {
@@ -1546,8 +1544,10 @@ svg:focus{
 }
 
 .popup {
+  display: grid;
+  justify-content: center;
   position: fixed; /* Stay in place */
-  z-index: 13; /* Sit on top */
+  z-index: 10; /* Sit on top */
   /*padding-top: 100px; /* Location of the box */
   left: 0;
   top: 0;
@@ -1564,6 +1564,7 @@ svg:focus{
   padding: 20px;
   border: 1px solid #888;
   width: 300px;
+  font-size: 14px;
 }
 .popup .close{
   cursor: pointer;
