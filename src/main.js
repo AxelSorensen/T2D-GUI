@@ -6,6 +6,7 @@ import 'chartkick/chart.js'
 
 import { library } from '@fortawesome/fontawesome-svg-core'
 import { faXmark } from '@fortawesome/free-solid-svg-icons'
+import { faGear } from '@fortawesome/free-solid-svg-icons'
 import { faCheck } from '@fortawesome/free-solid-svg-icons'
 import { faChevronDown } from '@fortawesome/free-solid-svg-icons'
 import { faChevronRight } from '@fortawesome/free-solid-svg-icons'
@@ -33,6 +34,7 @@ import router from './router'
 
 
 library.add(faXmark)
+library.add(faGear)
 library.add(faCheck)
 library.add(faChevronDown)
 library.add(faChevronRight)

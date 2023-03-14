@@ -6,7 +6,7 @@
         <p v-else>End time <br>[dd:hh:mm]</p>
         <!-- If the option is Heart Beat increase, add class for tooltip explaining it -->
         <p :class="{'tooltip': option == 'Heart Beat Increase [BPM]'}">{{getUnitName}}<br>{{getUnit}}
-            <span v-if="option == 'Heart Beat Increase [BPM]'" class="tooltiptext">
+            <span v-if="option == 'Heart Beat Increase [BPM]'" class="tooltiptext" style="right: 24px; top: 100px">
             Heart Beat increase is the change in heart beat rate from resting heart beat defined as parameter HRb.<span>By default resting heart rate is 80 BPM</span> </span>
         </p>
         <IconButton @click="$emit('add-param')" color="hsl(120, 100%, 30%)" :fontSize=20 />
@@ -87,11 +87,12 @@ export default {
 <style scoped>
 .option {
     display: grid;
+    margin-bottom: 6px;
     grid-template-columns: 81px 81px calc(100% - 191px) 30px;
 }
 p{
     text-align: left;
     margin: 0;
-    font-size: 1em;
+    font-size: .8em;
 }
 </style>

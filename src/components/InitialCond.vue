@@ -1,5 +1,5 @@
 <template>
-    <ParameterHeader text="Initial Conditions" />
+    <ParameterHeader class="header" text="Initial Conditions" />
     <div class="cond">
         <p>State</p>
         <p>Value</p>
@@ -50,7 +50,7 @@ export default {
 }
 </script>
 
-<style>
+<style scoped>
 .cond{
     display: grid;
     grid-template-columns: 33% 33% 34%;
@@ -59,5 +59,14 @@ export default {
 .cond p{
     margin: 0;
     padding-bottom: 5px;
+    font-size: .8em;
+}
+
+.header{
+  border-top: none!important;
+}
+
+input {
+  margin-bottom: 10px;
 }
 </style>

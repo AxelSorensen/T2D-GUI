@@ -1,22 +1,60 @@
 <template>
-    <GraphHeader 
-        :simPar="simPar"
-        :simRunning="simRunning"
-        :simProg="simProg"
-        :GlycemiaInterval="GlycemiaInterval"
-        @simulate="$emit('simulate')"
-        @cancelSim="$emit('cancelSim')"
-        @updateSimTime="$emit('updateSimTime', $event)"
-        @updateOde="$emit('updateOde', $event)"
-        @zoomChange="zoomChange"
-        @toggleVisible="$emit('toggleVisible')"
-        @updateAdvancedSimPar="$emit('updateAdvancedSimPar', $event)"
-        @updateGlycemiaInterval="$emit('updateGlycemiaInterval', $event)"
-         />
-    <!--
+  <div :class="{'graph_container_normal': !graphMaximized, 'graph_container_maximized': graphMaximized}">
+    <div id="right-top">
+      <GraphHeader id="graph-header" :simPar="simPar" :simRunning="simRunning" :simProg="simProg"
+        :GlycemiaInterval="GlycemiaInterval" @simulate="$emit('simulate')" @cancelSim="$emit('cancelSim')"
+        @updateSimTime="$emit('updateSimTime', $event)" @updateOde="$emit('updateOde', $event)" @zoomChange="zoomChange"
+        @toggleVisible="$emit('toggleVisible')" @updateAdvancedSimPar="$emit('updateAdvancedSimPar', $event)"
+        @updateGlycemiaInterval="$emit('updateGlycemiaInterval', $event)" />
+      <!--
         Subheader (States, patient watermark, maximize)
     -->
-    <GraphSubheader
+      <!-- TODO remove graph subheader aka. STATES -->
+      
+      <!-- 
+        Chart area
+     -->
+      <div class="chart">
+        <IconToggleButton  @click="graphMaximized = !graphMaximized" class="maximize" :show="!graphMaximized" />
+        <div class="overlay" v-if="newSimRequired">
+          <div class="content">
+            <span>Information has changed please simulate again.</span>
+            <IconButton @click="closeOverlay" class="close" icon="xmark" />
+          </div>
+        </div>
+        <Chart ref="chartComponent" class="chart-graph" :chartData="graphData" :xMax="simPar.time * 1440"
+          :simProg="simProg" :zoom="!simRunning" :showSecondAxis="showSecondAxis" :showGlycemia="showGlycemia"
+          :GlycemiaInterval="GlycemiaInterval" :GH="displayStates.GH" :axisTitleChange="axisTitleChange"
+          :AxisTitle="AxisTitle" :graphScroll="graphScroll" />
+          
+        
+        <!-- TODO removed save graph pic icon -->
+        <!-- <IconButton class="downloadGraph" @click="DownloadChart" icon="fa-save" /> -->
+      </div>
+      <div id="subgraph">
+        <div id="plot-against">
+          <label>Plot: </label>
+          <select name="compare" @change="changeCompare">
+            <option>None</option>
+            <option :key="item.name" v-for="item in getCompare(compareTo)" :selected="item.name == compare">
+              {{ item.name }}
+            </option>
+          </select>
+          <label> vs. </label>
+          <select name="compareTo" @change="changeCompare">
+            <option>None</option>
+            <option :key="item.name" v-for="item in getCompare(compare)">
+              {{ item.name }}
+            </option>
+          </select>
+        </div>
+        
+        <!-- <div class="options">
+            <div :key="index" v-for="(par, index) in parameters">
+                <input @change="checkboxChange" type="checkbox" :id=index><label :for=index>{{par.Name}}</label>
+            </div>
+        </div> -->
+        <GraphSubheader
         :activePatient="activePatient"
         :maximized="maximized"
         :display="display"
@@ -25,47 +63,82 @@
         :tooltips="tooltips"
         @toMaximize="$emit('toMaximize')"
         @stateDisplayChange="$emit('stateDisplayChange', $event)" />
-    <!-- 
-        Chart area
-     -->
-     <div class="chart">
-        <div class="overlay" v-if="newSimRequired">
-            <div class="content">
-                <span>Information has changed please simulate again.</span>
-                <IconButton @click="closeOverlay" class="close" icon="xmark" />
+
+      </div>
+    </div>
+    <div v-if="!graphMaximized" id="right-bottom">
+      <div id="bottom-divider">
+        <div class="response">
+          <div id="test">
+            <h2>Save response</h2>
+            <div class="row">
+              <p>Save the current response as:</p><input @keydown.enter="saveNewResponse" ref="newResponseName"
+                type="text" placeholder="Response name" /><i @click="saveNewResponse"><font-awesome-icon class="icon"
+                  icon="fa-solid fa-floppy-disk" /></i>
             </div>
+
+          </div>
+          <div>
+            <h2>Import patient</h2>
+            <p class="tooltip">Patient file <span class="tooltiptext" style="width: 200px; right: -250px; bottom: 0px">The patient file is a JSON-formatted file containing all information for the simulator, including saved responses and input parameters.</span></p>
+            <div class="row buttons">
+              <TextIconButton @click="$emit('importFile')" icon="fa-upload">Upload</TextIconButton>
+              <TextIconButton @click="$emit('exportFile')" icon="fa-download">Download</TextIconButton>
+            </div>
+          </div>
+
+
         </div>
-    <Chart
-        ref="chartComponent"
-        class="chart"
-        :chartData="graphData"
-        :xMax="simPar.time*1440"
-        :simProg="simProg"
-        :zoom="!simRunning"
-        :showSecondAxis="showSecondAxis"
-        :showGlycemia="showGlycemia"
-        :GlycemiaInterval="GlycemiaInterval"
-        :GH="displayStates.GH"
-        :axisTitleChange="axisTitleChange"
-        :AxisTitle="AxisTitle"
-        :graphScroll="graphScroll"/>
-    <IconButton class="downloadGraph" @click="DownloadChart" icon="fa-save" />
+        <div>
+          <h2>Response statistics</h2>
+          <div class="wrapper">
+
+            <div class="stat">
+              <p>Response Name</p>
+              <p>HbA1c [mmol/mol]</p>
+              <p>eAG [mmol/L]</p>
+              <p>Glucose Average [mmol/L]</p>
+            </div>
+            <div class="stat" :key="item.name" v-for="(item, index) in response">
+              <p class="ResponseName">{{ item.name }}</p>
+              <p>{{ item.stats.HbA1c_IFCC }}</p>
+              <p>{{ item.stats.eAG }}</p>
+              <p>{{ item.stats.GHavg }}</p><a v-show="shouldDelete(item.name)"
+                @click="$emit('DeleteResponse', { name: item.name, index: index })"><font-awesome-icon class="icon"
+                  icon="xmark" /></a>
+            </div>
+          </div>
+          
+        </div>
+        <IconButton icon="download" id="download-button" fontSize="20" @click="$emit('openDownload')" />
+        <!-- <div>
+          <h2>Export</h2>
+          <div class="text-icon"> <p>Simulation settings</p><i><font-awesome-icon class="icon" icon="fa-solid fa-download" /></i></div>
+          <div class="text-icon"> <p>Response statistics</p><i><font-awesome-icon class="icon" icon="fa-solid fa-download" /></i></div>
+          <div class="text-icon"> <p>Graph PNG</p><i><font-awesome-icon class="icon" icon="fa-solid fa-download" /></i></div>
+          <div class="text-icon"> <p>PDF summary</p><i><font-awesome-icon class="icon" icon="fa-solid fa-download" /></i></div>
+        </div> -->
+
+      </div>
     </div>
     <!-- <div class="optionSection"> -->
-        <!-- 
+    <!-- 
             Chart display options
         -->
-        <div class="options">
+    <!-- TODO parameter checkmarks under graph removed -->
+    <!-- <div class="options">
             <div :key="index" v-for="(par, index) in parameters">
                 <input @change="checkboxChange" type="checkbox" :id=index><label :for=index>{{par.Name}}</label>
             </div>
-        </div>
+        </div> -->
     <!-- </div> -->
     <!-- 
         Response area
     -->
-    <div class="statistics">
-        <div class="response">
+
+    <!-- <div class="statistics"> -->
+    <!-- TODO Hide response and plot against features for now -->
+    <!-- <div class="response">
             <p>Response</p>
             <div class="row">
                 <p>Save response as:</p><input @keydown.enter="saveNewResponse" ref="newResponseName" type="text" placeholder="Response name"/><i @click="saveNewResponse"><font-awesome-icon class="icon" icon="fa-solid fa-floppy-disk" /></i>
@@ -93,8 +166,8 @@
                 <TextIconButton @click="$emit('importFile')" icon="fa-upload">Upload</TextIconButton>
                 <TextIconButton @click="$emit('exportFile')" icon="fa-download">Download</TextIconButton>
             </div>
-        </div>
-        <div class="wrapper">
+        </div> -->
+    <!-- <div class="wrapper">
             <h3>Response statistics</h3>
             <IconButton class="download" @click="$emit('DownloadResponse')" icon="fa-download" />
             <div class="stat">
@@ -103,8 +176,10 @@
             <div class="stat" :key="item.name" v-for="(item, index) in response">
                 <p class="ResponseName">{{item.name}}</p><p>{{item.stats.HbA1c_IFCC}}</p><p>{{item.stats.eAG}}</p><p>{{item.stats.GHavg}}</p><a v-show="shouldDelete(item.name)" @click="$emit('DeleteResponse', {name:item.name, index:index})"><font-awesome-icon class="icon" icon="xmark"/></a>
             </div>
-        </div>
-    </div>
+        </div> -->
+
+    <!-- </div> -->
+  </div>
 </template>
 
 <script>
@@ -115,14 +190,14 @@ import IconToggleButton from './IconToggleButton.vue';
 import TextIconButton from './TextIconButton.vue';
 import ImportantInfo from './ImportantInfo.vue';
 import GraphHeader from './GraphHeader.vue'
-import GraphSubheader from './GrapSubheader.vue'
+import GraphSubheader from './GrapSubheader.vue';
 
 /**
  * The component used as a container for the chart and the other things related to displaying the graphs.
  */
 export default {
-    name: "Graph Area",
-    components:{
+  name: "Graph Area",
+  components: {
     Chart,
     Collapse,
     IconButton,
@@ -130,133 +205,230 @@ export default {
     TextIconButton,
     ImportantInfo,
     GraphHeader,
-    GraphSubheader
-},
-    props: {
-        graphData: Object,
-        simPar: Object,
-        simProg: 0.00,
-        display: Object,
-        displayStates: Object,
-        simRunning: Boolean,
-        response: Object,
-        maximized: false,
-        newSimRequired: Boolean,
-        subModel: Array,
-        tooltips: Object,
-        showSecondAxis: Boolean,
-        showGlycemia: Number,
-        showGlycemia: Number,
-        showGlycemia: Number,
-        GlycemiaInterval: Object,
-        axisTitleChange: Number,
-        AxisTitle: Array,
-        graphScroll: Boolean,
-        selected_solver: String,
-        solverList: Array,
-        activePatient: String,
-        parameters: Object,
-        compare: String,
-        compareTo: String,
+    GraphSubheader,
+  },
+  props: {
+    graphData: Object,
+    simPar: Object,
+    simProg: 0.00,
+    display: Object,
+    displayStates: Object,
+    simRunning: Boolean,
+    response: Object,
+    maximized: false,
+    newSimRequired: Boolean,
+    subModel: Array,
+    tooltips: Object,
+    showSecondAxis: Boolean,
+    showGlycemia: Number,
+    showGlycemia: Number,
+    showGlycemia: Number,
+    GlycemiaInterval: Object,
+    axisTitleChange: Number,
+    AxisTitle: Array,
+    graphScroll: Boolean,
+    selected_solver: String,
+    solverList: Array,
+    activePatient: String,
+    parameters: Object,
+    compare: String,
+    compareTo: String,
+  },
+  data() {
+    return {
+      graphMaximized: false,
+      showAdvanced: false,
+      showStates: false,
+      show: [false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false],
+      plotting_click: false,
+    }
+  },
+  emits: ["simulate", "cancelSim", "updateSimTime", "updateGraphContent", "updateAdvancedSimPar", "stateDisplayChange", "saveNewResponse", "changeCompare", "importFile", "exportFile", "toMaximize", "updateGlycemiaInterval", "DownloadResponse", "DeleteResponse", "updateOde", "closeOverlay", "toggleVisible"],
+  methods: {
+    togglePlotting() {
+      this.plotting_click = !this.plotting_click;
+      console.log('Gda')
     },
-    data(){
-        return {
-            showAdvanced: false,
-            showStates: false,
-            show: [false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false],
-        }
+    convertMinutesToTime(minutes) {
+      const hours = Math.floor(minutes / 60);
+      const minutesRemainder = minutes % 60;
+      const hoursString = hours.toString().padStart(2, '0');
+      const minutesString = minutesRemainder.toString().padStart(2, '0');
+      return `${hoursString}:${minutesString}`;
     },
-    emits: ["simulate", "cancelSim", "updateSimTime", "updateGraphContent", "updateAdvancedSimPar","stateDisplayChange","saveNewResponse", "changeCompare", "importFile", "exportFile", "toMaximize", "updateGlycemiaInterval","DownloadResponse","DeleteResponse","updateOde","closeOverlay","toggleVisible"],
-    methods:{
-        zoomChange(days){
-            console.log('Zoom change',days)
-            this.$refs.chartComponent.ZOOOM(days)
-        },
-        checkboxChange(event){
-            console.log({key:event.srcElement.id, bool:event.srcElement.checked})
-            this.$emit("updateGraphContent", {key:event.srcElement.id, bool:event.srcElement.checked})
-        },
-        changeCompare(event){
-            this.$emit("changeCompare", {name:event.srcElement.name, val:event.srcElement.value})
-        },
-        saveNewResponse(){
-            this.$emit("saveNewResponse", this.$refs['newResponseName'].value)
-        },
-        /**
-         * Should the user be able to delete the response
-         * @param {String} name Name of the response
-         */
-        shouldDelete(name){
-            let bool = true;
-            name === 'Current' ? bool = false :
-            name === 'Previous' ? bool = false :
-            bool = true;
-            return bool;
-        },
-        DownloadChart(){
-            // Gets Canvas element
-            var canvas = document.getElementById('chart');
-            // Gets 2d context
-            var ctx = canvas.getContext('2d');
-            ctx.globalCompositeOperation = "destination-over";  // Sets style change to background
-            ctx.fillStyle = "#ffffff";                          // Sets style color (background)
-            ctx.fillRect(0, 0, canvas.width, canvas.height);    // Draw the entire canvas as background with color from above
-            // Create a fake event to trick a download
-            const e = document.createEvent('MouseEvents'),
-            a = document.createElement('a');a.download = "Graph.jpg";
-            a.href = canvas.toDataURL("image/jpg");
-            e.initEvent('click', true, false, window, 0, 0, 0, 0, 0, false, false, false, false, 0, null);
-            a.dispatchEvent(e);
-        },
-        // Emits the closing of overlay to top level
-        closeOverlay(){
-            this.$emit("closeOverlay");
-        },
-        /**
-         * Returns a list of responses - the item to filter (the one selected by the other)
-         */
-         getCompare (ItemToFilter) {
-            let resp = [...this.response]
-            // Removes the first response in the array (Current response)
-            resp = resp.filter((item)=> item.name !== ItemToFilter)
-            return resp
-        },
+    zoomChange(days) {
+      console.log('Zoom change', days)
+      this.$refs.chartComponent.ZOOOM(days)
     },
+    checkboxChange(event) {
+      console.log({ key: event.srcElement.id, bool: event.srcElement.checked })
+      this.$emit("updateGraphContent", { key: event.srcElement.id, bool: event.srcElement.checked })
+    },
+    changeCompare(event) {
+      this.$emit("changeCompare", { name: event.srcElement.name, val: event.srcElement.value })
+    },
+    saveNewResponse() {
+      this.$emit("saveNewResponse", this.$refs['newResponseName'].value)
+    },
+    /**
+     * Should the user be able to delete the response
+     * @param {String} name Name of the response
+     */
+    shouldDelete(name) {
+      let bool = true;
+      name === 'Current' ? bool = false :
+        name === 'Previous' ? bool = false :
+          bool = true;
+      return bool;
+    },
+    DownloadChart() {
+      // Gets Canvas element
+      var canvas = document.getElementById('chart');
+      // Gets 2d context
+      var ctx = canvas.getContext('2d');
+      ctx.globalCompositeOperation = "destination-over";  // Sets style change to background
+      ctx.fillStyle = "#ffffff";                          // Sets style color (background)
+      ctx.fillRect(0, 0, canvas.width, canvas.height);    // Draw the entire canvas as background with color from above
+      // Create a fake event to trick a download
+      const e = document.createEvent('MouseEvents'),
+        a = document.createElement('a'); a.download = "Graph.jpg";
+      a.href = canvas.toDataURL("image/jpg");
+      e.initEvent('click', true, false, window, 0, 0, 0, 0, 0, false, false, false, false, 0, null);
+      a.dispatchEvent(e);
+    },
+    // Emits the closing of overlay to top level
+    closeOverlay() {
+      this.$emit("closeOverlay");
+    },
+    /**
+     * Returns a list of responses - the item to filter (the one selected by the other)
+     */
+    getCompare(ItemToFilter) {
+      let resp = [...this.response]
+      // Removes the first response in the array (Current response)
+      resp = resp.filter((item) => item.name !== ItemToFilter)
+      return resp
+    },
+  },
 }
 </script>
 
 <style scoped>
+.graph_container_normal {
+  display: grid;
+  height: calc(100vh - 2*8px);
+  grid-template-rows: 2fr 1fr;
+  gap: 8px;
+}
+
+.graph_container_maximized {
+  display: grid;
+  height: calc(100vh - 2*8px);
+  grid-template-rows: 1fr;
+  gap: 8px;
+}
+
+
+#bottom-divider {
+  position: relative;
+  height: 100%;
+  display: grid;
+  grid-template-columns: 1fr 2fr .1fr;
+  gap: 24px;
+
+}
+
+
+td,
+th {
+  border: 1px solid #dddddd;
+  text-align: left;
+  padding: 4px;
+}
+
+#right-top {
+  
+  background-color: white;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  border-radius: 10px;
+  box-shadow: 0px 0px 5px rgba(0, 0, 0, 0.1);
+}
+
+
+#right-bottom {
+
+  grid-row: 2;
+  padding: 16px;
+  background-color: white;
+  border-radius: 10px;
+  box-shadow: 0px 0px 5px rgba(0, 0, 0, 0.1);
+}
+
 /* Chrome, Safari, Edge, Opera */
 input::-webkit-outer-spin-button,
 input::-webkit-inner-spin-button {
   -webkit-appearance: none;
   margin: 0;
 }
+
+#subgraph {
+  display: flex;
+
+  align-items: flex-end;
+  justify-content: space-between;
+  padding: 16px 16px;
+}
+
+
 /* Firefox */
 input[type=number] {
   -moz-appearance: textfield;
+  outline: none;
 }
-.parameters i{
-    position: relative;
-    font-size: 19px;
-    line-height: 19px;
-    padding: 10px;
-    cursor: pointer;
+
+.parameters i {
+  position: relative;
+  font-size: 19px;
+  line-height: 19px;
+  padding: 10px;
+  cursor: pointer;
 }
-.chart{
-    position: relative;
-    margin-top: 35px;
-    height: 500px;
+
+.chart {
+  position: relative;
+  padding: 0px 20px;
+
 }
-.chart .overlay{
-    position: absolute;
-    z-index: 2;
-    width: 100%;
-    height: 100%;
-    background-color: rgb(0,0,0); /* Fallback color */
-    background-color: rgba(0,0,0,0.4); /* Black w/ opacity */
+
+
+h2 {
+  margin-bottom: 8px;
 }
-.chart .overlay .content{
+
+.chart-graph {
+  height: 48vh;
+}
+
+.graph_container_maximized .chart-graph {
+  height: 80vh;
+}
+
+.chart .overlay {
+  position: absolute;
+  z-index: 2;
+  width: calc(100% - 40px);
+  height: 100%;
+  background-color: rgb(0, 0, 0);
+  /* Fallback color */
+  background-color: rgba(0, 0, 0, 0.4);
+  /* Black w/ opacity */
+}
+
+
+
+.chart .overlay .content {
   position: relative;
   top: 50%;
   transform: translateY(-50%);
@@ -266,7 +438,8 @@ input[type=number] {
   border: 1px solid #888;
   width: 250px;
 }
-.chart .overlay .close{
+
+.chart .overlay .close {
   cursor: pointer;
   position: absolute;
   font-size: 20px;
@@ -275,133 +448,235 @@ input[type=number] {
   top: -10px;
   right: -9px;
 }
+
 .chart .overlay .close:hover,
 .chart .overlay .close:focus {
   color: #000;
   text-decoration: none;
 }
-.downloadGraph{
-    position: absolute;
-    right: 0;
-    bottom: 50px;
+
+.downloadGraph {
+  position: absolute;
+  right: 0;
+  bottom: 50px;
 }
 
-.options div{
-    display: inline-block;
-}
-.options label{
-    padding-right: 25px;
-}
-.statistics{
-    position: relative;
-    display: grid;
-    grid-template-columns: 250px calc(100% - 500px) 250px;
-}
-.statistics p{
-    border: 1px solid black;
-    margin: 0;
-    padding: 5px;
-}
-.statistics .stat{
-    display: grid;
-    grid-template-columns: 31% 23% 23% 23% 30px;
-}
-.statistics .stat a{
-    color: red;
-    font-size: 20px;
-    line-height: 20px;
-    padding: 5px;
-    padding-left: 0;
-    cursor: pointer;
-}
-.statistics .wrapper{
-    position: relative;
-    grid-column: 2;
-    width: 80%;
-    left: 10%;
-    min-width: 400px;
-}
-.download{
-    position: absolute;
-    top: 1em;
-    right: 5px;
+
+/* TODO added plot against under graph */
+#plot-against {
+  align-content: center;
+  gap: 10px;
+  display: flex;
 }
 
-.statistics .response{
-    position: relative;
-    grid-column: 1;
-    left: 0;
-    top: 0px;
+.options div {
+  display: inline-block;
 }
-.statistics .response .row{
-    padding: 5px 0px;
-    margin-bottom: 0;
+
+
+ #plotting-options {
+
+ }
+
+
+.options label {
+  font-size: 10px;
+  padding-right: 6px;
 }
-.statistics .response .row:nth-child(2){
-    display: grid;
-    grid-template-columns: 50% calc(50% - 15px) 15px;
+.options input{
+  position: relative;
+  top: 3px;
 }
-.statistics .response .row i{
-    cursor: pointer;
-    background: whitesmoke;
-    border-bottom: 1px solid black;
-    line-height: 46px;
-    text-align: center;
+
+.options {
+  display: flex;
+  align-items: center;
+  justify-items: center;
 }
-.statistics .response .row:nth-child(3), .statistics .response .row:nth-child(4), .statistics .response .row:nth-child(6){
-    display: grid;
-    grid-template-columns: 50% 50%;
+
+.statistics {
+  position: relative;
 }
+
+p {
+  border: .5px solid black;
+  margin: 0;
+  padding: 5px;
+  font-size: 12px;
+}
+
+.stat {
+  display: grid;
+  grid-template-columns: 31% 20% 20% 20% 9%;
+  padding-left: 30px;
+}
+
+.stat a {
+  color: red;
+  font-size: 20px;
+  line-height: 20px;
+  padding: 5px;
+  padding-left: 0;
+  cursor: pointer;
+}
+
+
+.wrapper {
+  height: 20vh;
+  position: relative;
+  margin: 0;
+  overflow-y: scroll;
+}
+
+.download {
+  position: absolute;
+  top: 1em;
+  right: 5px;
+}
+
+#patient-upload {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.response {
+  position: relative;
+  grid-column: 1;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  justify-content: space-between;
+}
+
 .response p {
-    border: none;   
+  font-size: 14px;
+
+  text-align: left;
 }
-.statistics .ResponseName{
-    overflow: auto;
+
+.response input {
+  outline: none;
+  height: 40px;
 }
-.statistics .response a{
-    cursor: pointer;
-    padding: 5px 0;
-    margin: 0 15px;
-    border-bottom: 1px solid black
+
+.response .row {
+  margin-bottom: 0;
+
 }
-a svg{
-    padding: 0 5px
+
+.iconbig {
+  width: 20px;
+  height: 20px;
 }
-.days{
-    margin-left: 5px!important;
+
+.response .row:nth-child(2) {
+  display: grid;
+  grid-template-columns: 50% calc(50% - 15px) 15px;
 }
-.alpha span{
+
+.response .row i {
+  width: 22px;
+  height: 42px;
+  cursor: pointer;
+  background: whitesmoke;
+  border-bottom: 1px solid black;
+
+  display: grid;
+  align-items: center;
+}
+
+.buttons {
+  gap: 8px;
+}
+
+.text-icon {
+  display: flex;
+  justify-content: space-between;
+  padding-right: 8px;
+}
+
+.text-icon p {
+  border: none;
+  font-size: 14px;
+}
+
+.maximize {
+  position: absolute;
+  right: 22px;
+  top: 30px;
+}
+.response .row:nth-child(3),
+.response .row:nth-child(4),
+.response .row:nth-child(6) {
+  display: grid;
+  grid-template-columns: 50% 50%;
+}
+
+.response p {
+  border: none;
+}
+
+.ResponseName {
+  overflow: hidden;
+}
+
+.response a {
+  cursor: pointer;
+  padding: 5px 0;
+  margin: 0 15px;
+  border-bottom: 1px solid black
+}
+
+a svg {
+  padding: 0 5px
+}
+
+
+.days {
+  margin-left: 5px !important;
+}
+
+.alpha span {
   font-size: 25px;
   font-weight: bold;
 }
+
 @media only screen and (max-width: 1124px) {
   .statistics {
     grid-template-columns: none;
   }
-  .statistics .response{
+
+  .response {
     position: relative;
     grid-column: unset;
     grid-row: 2;
     width: 300px;
     left: calc(50% - 150px);
   }
-  .statistics .wrapper{
+
+  .wrapper {
     grid-column: unset;
     grid-row: 1;
   }
 }
+
+
 @media only screen and (max-width: 600px) {
-    .statistics .wrapper{
-        left: 0;
-        width: 100%;
-    }
-    .statistics .tooltiptext{
-        left: 0;
-        width: 200px;
-        transform: translate(25%, 30%);
-    }
-    .GraphImportantInfo{
-        display: none;
-    }
+  .wrapper {
+    left: 0;
+    width: 100%;
+  }
+
+  .tooltiptext {
+    left: 0;
+    width: 200px;
+    transform: translate(25%, 30%);
+  }
+
+  .GraphImportantInfo {
+    display: none;
+  }
 }
 </style>

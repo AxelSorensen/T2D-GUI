@@ -1,8 +1,4 @@
 <template>
-  <button class="debug" @click="debugContent">Debug</button>
-  <!-- 
-    Input parameters (left side)
-   -->
   <div id="left-container" :class="{'hide': !maximized, 'expanded': maximized}" >
     <!-- TODO removed advanced button -->
     <!-- <div class="btns">
@@ -10,8 +6,12 @@
       <TextIconButton @click="toggleVisiblePar" v-if="advanced" icon="fa-chevron-right">Normal </TextIconButton>
       <TextIconButton @click="toggleVisible" class="toggleVisible" icon="fa-chart-line">Show Graph </TextIconButton>
     </div> -->
-    <CollapseSide>
-    <div id="left-params" v-if="!advanced">
+    <div id="left-top-tab">
+      <div id="basic_tab" :class="{selected_tab: advanced}" @click="handleTabs(false)">Basic</div>
+      <div id="advanced_tab" :class="{selected_tab: !advanced}" @click="handleTabs(true)">Advanced</div>
+    </div>
+    <CollapseSide id="left-params">
+    <div v-if="!advanced">
       <div :key="type" v-for="type in getTypes">
       <ParameterHeader :text="type" :displayIcon=true @iconClick="openPopup"/>
 
@@ -32,71 +32,36 @@
           :SelectedInsulin='simPar.selectedInsulin[index]'
           :InsulinList="InsulinTypes[index]"
           :predefinedDose="par.predefinedDose"
-          :Index="index"/>
+          :Index="index"
+          :showAll="showAll"
+          />
+
       </div>
+      
 
       <!-- TODO removed physiological for now -->
-      <!-- <Physiological
+      <Physiological
         @updateValueSlider="updateValueSlider"
         :ins_sens='patient.ins_sens'
         :ins_secr='patient.ins_secr'
         :glu_prod='patient.glu_prod'
-        :glu_upta='patient.glu_upta'/> -->
+        :glu_upta='patient.glu_upta'/>
       
         <!-- TODO Inital Cond component removed -->
-      <!-- <InitialCond
-        @updateInitCond="updateInitCond"
-        :initCond="simPar.initCond"/> -->
 
-      <div id="left-tuned-patients">
-        <ParameterHeader text="Tuned patients"/>
-        <TextIconButton @click="tunedPatient" :class="{'active':isActivePatient('')}">Default
-        </TextIconButton>
-        <TextIconButton @click="tunedPatient" class="tooltip" :class="{'active':isActivePatient('Patient 1')}">Patient 1
-          <span class="tooltiptext">The following parameters will change value to: 
-            <span>k12 → 0.5 • k12</span>
-            <span>kabs → 0.5 • kabs</span>
-            <span>c2 → 1.2 </span>
-            <span>d2 → 1 </span>
-            <span>GBPC0 → 9.5</span>
-            <span>Insulin Sensitivity → 5 </span>
-          </span>
-        </TextIconButton>
-        <TextIconButton @click="tunedPatient" class="tooltip" :class="{'active':isActivePatient('Patient 2')}">Patient 2
-          <span class="tooltiptext">The following parameters will change value to: 
-            <span>k12 → 0.375 • k12</span>
-            <span>kabs → 0.375 • kabs</span>
-            <span>zeta1 → 0.002</span>
-            <span>c2 → 6 </span>
-            <span>c3 → 0.7 </span>
-            <span>d2 → 2 </span>
-            <span>GBPC0 → 14</span>
-            <span>IPBF0 → 0.5</span>
-            <span>Insulin Sensitivity → 3 </span>
-          </span>
-        </TextIconButton>
-        <TextIconButton @click="tunedPatient" class="tooltip" :class="{'active':isActivePatient('Patient 3')}">Patient 3
-          <span class="tooltiptext">The following parameters will change value to: 
-            <span>k12 → 0.375 • k12</span>
-            <span>kabs → 0.375 • kabs</span>
-            <span>c2 → 1.2 </span>
-            <span>c3 → 0.7 </span>
-            <span>d2 → 2 </span>
-            <span>GBPC0 → 18</span>
-            <span>IPBF0 → 0.35</span>
-            <span>Insulin Sensitivity → 3 </span>
-            <span>Insulin Secretion rate → 0 </span>
-          </span>
-        </TextIconButton>
-      </div>
+        <!-- <div id="close-all" @click="showAll = !showAll">
+          <p v-if="!showAll">Expand all</p>
+          <p v-else >Collapse all</p>
+          <i><font-awesome-icon :class='{ "rotate": showAll, "icon": !showAll }' icon="chevron-down"/></i>
+        </div> -->
     </div>
-    
-    <!-- TODO removed advanced parameters container for now -->
-    <!-- <div v-else class="container">
-      <div class="header">
-        <h2>Advanced Parameters</h2>
+    <div v-else class="advanced">
+      <div class="advanced_header">
+        <!-- <h2>Advanced Parameters</h2> -->
       </div>
-    
+      <InitialCond
+        @updateInitCond="updateInitCond"
+        :initCond="simPar.initCond"/>
       <AdvancedParameters
         @updateParam="updateParam"
         @updateBasal="updateBasal"
@@ -104,17 +69,36 @@
         :Parameters="AdvancedParameter"
         :Params="this.sim.Params"
         :Basal="this.sim.Basal"/>
-    </div> -->
-    </CollapseSide>
+    </div>
+
+  </CollapseSide>
+    <!-- <div id="left-tuned-patients"> -->
+        <!-- <ParameterHeader text="Tuned patients"/> -->
+        <div id="patients">
+          <div id="patient0" @click="tunedPatient" class="tooltip" :class="{'selected_patient':isActivePatient('')}">Default</div>
+          <div id="patient1" @click="tunedPatient" class="tooltip" :class="{'selected_patient':isActivePatient('Patient 1')}">Patient 1</div>
+          <div id="patient2" @click="tunedPatient" class="tooltip" :class="{'selected_patient':isActivePatient('Patient 2')}">Patient 2</div>
+          <div id="patient3" @click="tunedPatient" class="tooltip" :class="{'selected_patient':isActivePatient('Patient 3')}">Patient 3</div>
+        <!-- <TextIconButton @click="tunedPatient" :class="{'active':isActivePatient('')}">Default
+        </TextIconButton>
+        <TextIconButton @click="tunedPatient" class="tooltip" :class="{'active':isActivePatient('Patient 1')}">Patient 1
+
+        </TextIconButton>
+        <TextIconButton @click="tunedPatient" class="tooltip" :class="{'active':isActivePatient('Patient 2')}">Patient 2
+
+        </TextIconButton>
+        <TextIconButton @click="tunedPatient" class="tooltip" :class="{'active':isActivePatient('Patient 3')}">Patient 3
+
+        </TextIconButton> -->
+      </div>
+      
+      <!-- </div> -->
+    <!-- TODO removed advanced parameters container for now -->
+    
+
   </div>
-  
-  
-  <!-- 
-    Graph area (right side)
-   -->
   <div id="right-container">
-  <div v-show="showGraph" id="graph" :class="{maximized: maximized }">
-    <Graph
+      <Graph
       @simulate="simulate"
       @cancelSim="cancelSimulation"
       @updateSimTime="updateSimTime"
@@ -130,6 +114,7 @@
       @DownloadResponse="downloadPopup=!downloadPopup"
       @updateOde="updateOde"
       @DeleteResponse="DeleteResponse"
+      @openDownload="openDownload"
       @closeOverlay="closeGraphOverlay"
       @toggleVisible="toggleVisible"
       :graphData="graphInfo"
@@ -155,12 +140,8 @@
       :compare="compare"
       :compareTo="compareTo"
       :parameters="getParameters"/>
-  </div>
-</div>
-  <!-- 
-    Pop-up
-   -->
-  <div v-show="savePopup" class="save-popup popup" @click="closePopupOutside">
+    </div>
+    <div v-show="savePopup" class="save-popup popup" @click="closePopupOutside">
     <div class="content">
       <span>Save or import</span>
       <h2>{{getName}}</h2>
@@ -183,7 +164,6 @@
       <span ref="popupInfo"></span>
     </div>
   </div>
-
   <div v-show="downloadPopup" class="download-popup popup" @click="closeDownload">
     <div class="content">
       <h2>Download Response</h2>
@@ -195,9 +175,11 @@
               {{item.name}}
             </option>
           </select>
+        
           <IconButton @click="DownloadResponse" icon="fa-download" />
         </div>
       <span ref="popupInfoDownload"></span>
+      <p v-if="Response.length == 0" style="color: red">No responses to save</p>
     </div>
   </div>
 
@@ -268,6 +250,9 @@ export default {
 },
   data(){
     return {
+      showAll: false,
+      selected_tab: true,
+      selected_patient: 0,
       simWorker: SimWorker,
       tooltips: States.tooltips,
       statesSubModel: States.subModel,
@@ -350,6 +335,10 @@ export default {
     }
   },
   methods:{
+
+    handleTabs(bool) {
+      this.advanced = bool;
+    },
     // Calls add function in Parameters.js
     addParam(par){
       Parameters.add(par, this.patient)
@@ -555,6 +544,8 @@ export default {
           this.savedParameters['External'][name] = {name: name, data:dataExternal};
           this.savedParameters['Treatment'][name] = {name: name, data:dataTreatment};
         }
+      } else {
+        alert('You need to simulate in order to save a response \nPress "Simulate" in the top left corner')
       }
     },
     DeleteResponse(par){
@@ -567,6 +558,17 @@ export default {
       // Redraw grap
     },
     simulate(){
+      for(let key in this.simPar.parVector) {
+        this.updateDisplayParameters({key: key,bool: false})
+        if(this.simPar.parVector[key].data.length > 0) {
+          this.updateDisplayParameters({key: key,bool: true})
+        }
+
+      }
+
+
+
+      
       // Send to server that a sim has been run (flag 1)
       var cookie = $cookies.get('T2DSim');
       axios.post(this.statPath+"Visit.php", JSON.stringify({
@@ -915,6 +917,7 @@ export default {
           this.ActivePatient = "Patient 3";
         }  
       }
+      this.newSimRequired = true;
     },
     // Boolean visibility stuff
     toggleVisiblePar(){
@@ -984,6 +987,9 @@ export default {
       if(event.target.className == 'download-popup popup'){
         this.downloadPopup = false;
       }
+    },
+    openDownload(){
+      this.downloadPopup = !this.downloadPopup;
     },
     closeInfo(event){
       if(event.target.className == 'info-popup popup'){
@@ -1191,7 +1197,26 @@ export default {
 body{
   margin: 0px;
   box-sizing: border-box;
+  overflow: hidden;
+  scroll-behavior: none;
 }
+
+label {
+  user-select: none;
+}
+
+::-webkit-scrollbar {
+  -webkit-appearance: none;
+  width: 7px;
+}
+
+::-webkit-scrollbar-thumb {
+  border-radius: 4px;
+  background-color: rgba(0, 0, 0, .5);
+  box-shadow: 0 0 1px rgba(255, 255, 255, .5);
+}
+
+
 #app {
   font-family: Avenir, Helvetica, Arial, sans-serif;
   -webkit-font-smoothing: antialiased;
@@ -1200,37 +1225,134 @@ body{
   color: #2c3e50;
   box-sizing: border-box;
   display: grid;
-  grid-template-columns: 390px calc(100% - 390px);
-  height: 100vh;
+  grid-template-columns: 1fr 3fr;
+  background-color: rgb(220, 220, 220);
   position: relative;
   z-index: 10;
+  padding: 8px;
+  gap: 8px;
 }
 
 #left-container{  
+  box-shadow: 0px 0px 5px rgba(0, 0, 0, 0.1);
+  position: relative;
+  background-color: white;
+  border-radius: 10px;
   /*border: 1px black solid;*/
   grid-row: 1;
   grid-column: 1;
   display: grid;
-  grid-template-rows: 1fr 100px;
+  grid-template-rows: 40px 1fr 40px;
   width: 100%;
-  height: 100vh;
-  position: relative;
-  z-index: 10;
+  height: calc(100vh - 2*8px);
+
 
 }
 
 #right-container {
-  background-color: red;
-  display: grid;
-  grid-template-rows: 100px 2fr 1fr;
+  height: calc(100vh - 2*8px);
+
+  
 }
 
+
 #left-params{
-  background-color: red;
-  grid-row: 1;
-  height: 80vh;
-  overflow: scroll;
+  margin-top: 10px;
+  grid-row: 2;
+  overflow-y: scroll;
+  overflow: overlay;
+  overflow-x: hidden;
+  margin-right: 0;
+
 }
+
+#left-tuned-patients {
+grid-row: 3;
+
+}
+
+.advanced_header {
+  margin-top: 10px;
+}
+
+#close-all {
+  gap: 8px;
+  cursor: pointer;
+  text-align: right;
+  position: sticky;
+  color: black;
+  bottom: 0;
+  height: 30px;
+  z-index: 15;
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+#patients {
+  
+  align-items: center;
+  display: flex;
+  justify-content: space-evenly;
+  background-color: #eeeeee;
+  border-bottom-right-radius: 10px !important;
+  border-bottom-left-radius: 10px !important;
+
+}
+
+#patients div {
+
+  height: 100%;
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 500;
+  cursor: pointer;
+
+  background-color: #eeeeee;
+  color: grey;
+}
+
+
+
+#patient0 {
+  border-bottom-left-radius: 10px !important;
+}
+
+#patient3 {
+  border-bottom-right-radius: 10px !important;
+}
+
+#patients div:hover {
+  background-color: #e6e6e6;
+}
+
+.selected_patient {
+  font-weight: 600 !important;
+  background-color: white !important;
+  box-shadow: none !important;
+  border-bottom-right-radius: 10px !important;
+  border-bottom-left-radius: 10px !important;
+  color: #2c3e50 !important;
+  border-left: none !important;
+}
+
+
+
+.rotate{
+    transform: rotate(180deg);
+    transition: all .8s ease;
+}
+
+.icon {
+  transition: all .8s ease;
+}
+
+
+
+
 
 #graph{
 
@@ -1244,11 +1366,55 @@ body{
   transition: .5s;
 }
 h2{
-  font-size: 1.3em;
+  font-size: 1em;
   margin: 0;
+  cursor: default;
+  user-select: none;
 }
+
+
+
 p{
-  font-size: .8em;
+  font-size: 1em;
+}
+
+#left-top-tab {
+  grid-row: 1;
+  display: flex;
+  justify-content: space-evenly;
+  align-items: center;
+
+}
+
+#left-top-tab div {
+  height: 100%;
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 500;
+  cursor: pointer;
+}
+
+#advanced_tab {
+  border-top-right-radius: 10px;
+  border-bottom-left-radius: 10px;
+}
+
+#basic_tab {
+  border-top-left-radius: 10px;
+  border-bottom-right-radius: 10px;
+}
+
+.selected_tab {
+  background-color: #eeeeee;
+  color: grey;
+}
+
+.selected_tab:hover {
+
+
+background-color: #e6e6e6;
 }
 
 input, select {
@@ -1259,7 +1425,8 @@ input, select {
   background: whitesmoke;
 }
 button {
-  color: black;
+
+
 }
 i {
   cursor: pointer;
@@ -1272,11 +1439,6 @@ i {
   right: 40px;
 }
 
-#left-tuned-patients {
-    grid-row: 2;
-    background-color: green;
-  }
-
 .maximized {
   grid-column-start: 1!important;
   grid-column-end: 3!important;
@@ -1284,6 +1446,13 @@ i {
   width: 100%!important;
   padding: 0px!important;
 }
+
+.tooltip {
+  font-size: .8em;
+  text-align: left;
+  z-index: 100;
+}
+
 .tooltip .tooltiptext {
   visibility: hidden;
   width: 140px;
@@ -1294,12 +1463,12 @@ i {
   padding: 5px;
   font-size: 12px;
   /* Position the tooltip */
-  position: absolute;
-  z-index: 3;
+
   right: -140px;
+  position: absolute;
 }
 .tooltiptext span{
-  display: block;
+
 }
 
 .tooltip:hover .tooltiptext {
@@ -1353,6 +1522,7 @@ svg:focus{
 <style scoped>
 .header {
   position: relative;
+
 }
 .External{
   border-top: none!important;
@@ -1427,15 +1597,28 @@ svg:focus{
   grid-template-columns: 55% calc(45% - 30px) 30px;
   padding: 10px 0px;
 }
+
+.save-popup {
+  display: grid;
+  justify-content: center;
+  align-items: center;
+}
+
+.download-popup {
+  display: grid;
+  justify-content: center;
+  align-items: center;
+}
 .download-popup .content .row{
   display: grid;
   grid-template-columns: 55% 30px;
   padding: 10px 0px;
   margin-left: calc((100% - (55% - 30px))/2);
 }
-.patients .active{
+#left-tuned-patients .active{
   border: 1px solid blue;
   font-weight: bold;
+  
 }
 .toggleImportant{
   display: none;

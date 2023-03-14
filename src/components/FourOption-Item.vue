@@ -9,7 +9,7 @@
         name="endTime"
         :Time='param.endTime'
         :repeat="repeat"/>
-    <input @change="updateValue" type="number" name='number' placeholder="0" :value='param.value'>
+    <input @change="updateValue" type="number" name='number' placeholder="0" @focus="$event.target.select()" :value='param.value'>
     <IconButton @click="$emit('delete-param', param.id)" icon="xmark" color="hsl(0, 100%, 50%)"/>
 </template>
 

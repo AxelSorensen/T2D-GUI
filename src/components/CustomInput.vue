@@ -1,6 +1,6 @@
 <template>
     <div class="container" @focusin="focus" @focusout="unfocus" >
-        <input type="number" @change="updateValue" name='number' placeholder="0" :value='param.value' />
+        <input @focus="$event.target.select()" type="number" @change="updateValue" name='number' placeholder="0" :value='param.value' />
         <teleport to="body">
         <div class="datalist" :style="cssProps" v-if="toShow" v-show="visible">
             <option :key="value" v-for="value in predefinedDose" @click="doseSelected">

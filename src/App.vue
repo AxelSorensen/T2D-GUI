@@ -5,8 +5,10 @@
   <!-- 
   Footer
   -->
-  <Footer 
-    :version="version" />
+
+  <!-- TODO Footer removed -->
+  <!-- <Footer 
+    :version="version" /> -->
 </template>
 <script>
 import Footer from './components/Footer.vue'

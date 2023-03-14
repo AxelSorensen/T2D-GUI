@@ -47,7 +47,7 @@ export default {
 /* Animation of dropdown */
 .collapse-side-enter-active,
 .collapse-side-leave-active {
-  transition: all .4s ease;
+  transition: all .1s ease;
   overflow: hidden;
   min-width: none;
   white-space: nowrap;

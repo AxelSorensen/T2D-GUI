@@ -1,18 +1,17 @@
 <template>
-    <div class="subheader">
     <!-- 
         States dropdown
         -->
         <div class="states">
-            <div class="header" @click="showStates = !showStates">
-                <p>States</p>
-                <i :class='{ "rotate": showStates }'><font-awesome-icon class="icon" icon="chevron-down"/></i>
-            </div>
+          <TextIconButton @click="showStates = !showStates" id="plotting-options" icon="fa-chart-line" >Plotting options 
+    </TextIconButton>
             <Collapse>
                 <div class="wrapper" v-if="showStates">
+                  <div id="top-plotting">
                     <div class="row-header">
                         <label>Name of state</label>
-                        <span>Axis</span>
+                        
+                        <span style="text-align: center;">Axis</span>
                     </div>
                     <div class="row-state tooltip">
                         <label>Blood Glucose (GH)</label>
@@ -26,11 +25,17 @@
                         <input @change="stateDisplayChange" type="checkbox" name="IH" id="r" :checked="getDisplay('IH', 'r')" />
                         <span class="tooltiptext">{{getTooltip('IH')}}</span>
                     </div>
+                  </div>
+                  <div id="advanced-header">
+                        <label>Advanced</label>
+  
+                    </div>
+                    <div id="advanced-plotting">
                     <div class="submodel" :key="val" v-for="(val, supindex) in subModel">
                         <div class="submodelHeader tooltip" @click="showSubmodel(supindex)">
                             <span>{{val}}</span>
                             <i :class='{ "rotate": show[supindex] }'><font-awesome-icon class="icon" icon="chevron-down"/></i>
-                            <span class="tooltiptext">{{getTooltipSubModel(val)}}</span>
+                            <span v-if="getTooltipSubModel(val)" class="tooltiptext">{{getTooltipSubModel(val)}}</span>
                         </div>
                         <Collapse>
                             <div v-if="show[supindex]" >
@@ -38,22 +43,37 @@
                                     <label>{{val.name}}</label>
                                     <input @change="stateDisplayChange" type="checkbox" :name="index" id="l" :checked='val.l' />
                                     <input @change="stateDisplayChange" type="checkbox" :name="index" id="r" :checked='val.r' />
-                                    <span class="tooltiptext">{{getTooltip(index)}}</span>
+                                    <!-- <span class="tooltiptext">{{getTooltip(index)}}</span> -->
                                 </div>
                             </div>
                         </Collapse>
                     </div>
+                  </div>
                 </div>
             </Collapse>
         </div>
-        <span class="PatientWatermark">{{activePatient}}</span>
-        <IconToggleButton  @click="$emit('toMaximize')" class="maximize" :show="!maximized" />
-    </div>
+        
+
+<!-- 
+      Buttons for important information and toggle to inputs when on smaller screens
+      And a wrapper for the advanced sim settings
+   -->
+<!-- <div class="btns">
+      <TextIconButton @click="$emit('toggleVisible')" class="toggleVisible" icon="fa-chart-line">Show Parameters </TextIconButton> -->
+
+
+<!-- 
+          Advanced settings dropdown
+      -->
+
+
+
 </template>
 
 <script>
 import Collapse from './Transitions/Collapse.vue'
 import IconToggleButton from './IconToggleButton.vue'
+import TextIconButton from './TextIconButton.vue'
 /**
 * The component used as a container for the chart and the other things related to displaying the graphs.
 */
@@ -62,6 +82,7 @@ export default {
     components:{
        Collapse,
        IconToggleButton,
+       TextIconButton,
     },
     props: {
         activePatient: String,
@@ -75,6 +96,7 @@ export default {
         return {
             showStates: false,
             show: [false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false],
+            showAdvanced: false,
         }
     },
     emits: ["toMaximize","stateDisplayChange"],
@@ -109,7 +131,7 @@ export default {
             if(tooltip !== undefined){
                 return tooltip
             }else{
-                return "No tooltip"
+                return null;
             }
         },
         /**
@@ -127,7 +149,7 @@ export default {
             if(tooltip !== undefined){
                 return tooltip
             }else{
-                return "No tooltip"
+                return ""
             }
         },
         /**
@@ -150,11 +172,278 @@ export default {
 </script>
 
 <style scoped>
+/* NEW CSS */
+
+#aau-button {
+  background-color: #22234e;
+  height: 40px;
+  width: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50px;
+  float: right;
+  cursor: pointer;
+}
+
+#aau-button img {
+  width: 25px;
+}
+
+.aau_clicked {
+  background-color: rgb(34, 35, 78, .5) !important;
+}
+
+.important_clicked {
+  background-color: rgba(172, 172, 172, 0.5) !important;
+}
+
+
+.header {
+  position: relative;
+  padding: 16px;
+
+  display: flex;
+  justify-content: space-between;
+}
+
+.header #graph-settings {
+  position: relative;
+  width: 100%;
+  display: flex;
+  justify-content: space-between
+}
+
+#right-settings {
+  display: flex;
+  gap: 20px;
+  justify-content: center;
+  align-items: center;
+}
+
+.x-icon {
+  color: white;
+}
+
+
+.header .btns {
+  display: grid;
+  grid-template-columns: calc(100% - 30px) 30px;
+}
+
+.ZoomSettings {
+  padding-left: 25px;
+}
+
+#top-plotting {
+  margin-bottom: 10px;
+}
+
+.ZoomSettings .zoom-btn {
+  margin-right: 5px;
+}
+
+.header label {
+  margin-left: 20px;
+  margin-right: 5px;
+}
+
+.header input {
+  width: 35px;
+  z-index: 2;
+}
+
+.header .advancedSimPar {
+  position: relative;
+  width: auto;
+  z-index: 4;
+}
+
+.header .advancedSimPar input {
+  width: auto;
+}
+
+/* Chrome, Safari, Edge, Opera */
+input::-webkit-outer-spin-button,
+input::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+/* Firefox */
+input[type=number] {
+  -moz-appearance: textfield;
+}
+
+#aau-dropdown {
+  display: grid;
+  align-items: center;
+  background-color: rgb(34, 35, 78);
+  height: 200px;
+  width: 400px;
+  border-radius: 10px;
+  position: absolute;
+  top: 70px;
+  right: 16px;
+  z-index: 10;
+  color: white;
+  padding: 6px;
+
+}
+
+#important-dropdown {
+  display: grid;
+  align-items: center;
+  background-color: white;
+  height: 200px;
+  width: 400px;
+  border-radius: 10px;
+  position: absolute;
+  top: 60px;
+  right: 10%;
+  z-index: 10;
+  padding: 6px;
+  border: 1px solid black;
+}
+
+#aau-dropdown a {
+  color: rgb(113, 234, 255);
+
+}
+
+.header i {
+  position: relative;
+  font-size: 19px;
+  line-height: 19px;
+  padding: 10px;
+  cursor: pointer;
+}
+
+.advancedSimPar .container {
+  position: absolute;
+  right: 18px;
+  width: 270px;
+  z-index: 10;
+  background: white;
+  border: 1px black solid;
+  margin-right: -1px;
+}
+
+.advancedSimPar .par {
+  display: grid;
+  grid-template-columns: 70% 30%;
+}
+
+.advancedSimPar .par input,
+.advancedSimPar .par label {
+  margin: 5px 0;
+}
+
+.advancedSimPar .GlycemiaInterval input {
+  width: 29px;
+}
+#advanced-header {
+  border-top: 1px solid black;
+  background-color: #eeeeee;
+}
+
+.advancedSimPar .container .ClosedLoop h3 {
+  border-top: 1px solid #22234e;
+  text-align: center;
+  margin: 5px 0px 5px 0px;
+  padding-top: 5px;
+}
+
+.advancedSimPar .container .ClosedLoop .function {
+  text-align: center;
+}
+
+.advancedSimPar .container .ClosedLoop textarea {
+  width: 90%;
+  background: whitesmoke;
+  border: 1px solid #ccc;
+  border-bottom: 1px solid #22234e;
+  height: 120px;
+  resize: vertical;
+  overflow: hidden;
+  line-height: 15px;
+  padding: 5px;
+}
+
+.advancedSimPar .container .ClosedLoop .CLInit {
+  height: 30px;
+}
+
+
+.days {
+  margin-left: 5px !important;
+}
+
+#advanced-plotting {
+  height: 17vh;
+  overflow: scroll;
+
+}
+
+@media only screen and (max-width: 1450px) {
+  .header {
+    grid-template-columns: 100%;
+    grid-template-rows: auto auto;
+  }
+
+  .header .btns {
+    grid-row: 1;
+    grid-template-columns: calc(100% - 30px) 30px;
+  }
+
+  .header .graph-settings {
+
+    grid-row: 1;
+  }
+
+  .ZoomSettings {
+    padding-left: 25px;
+  }
+
+  .ZoomSettings .zoom-btn {
+    margin-right: 5px;
+  }
+}
+
+@media only screen and (max-width: 1000px) {
+  .header .btns {
+    grid-template-columns: calc(50% - 15px) calc(50% - 15px) 30px;
+  }
+}
+
+@media only screen and (max-width: 600px) {
+  #graph {
+    padding: 0px;
+  }
+
+  .header {
+    padding-top: 0px;
+  }
+
+  .header .graph-settings {
+    padding-top: 0;
+  }
+}
+
 .subheader{
     position: relative;
     display: grid;
     grid-template-columns: 30% 40% calc(30% - 27px) 27px;
 }
+
+.tooltip {
+  position: relative !important;
+}
+
+.tooltiptext {
+  left: 250px;
+}
+
 .PatientWatermark{
     position: relative;
     font-size: 25px;
@@ -167,7 +456,7 @@ export default {
 }
 .states {
     position: relative;
-    border: 1px solid black;
+
     border-top: none;
     z-index: 3;
     left: 0;
@@ -192,15 +481,18 @@ export default {
 }
 .states .wrapper{
     position: absolute;
-    width: 100%;
+    width: 500px;
     background: white;
     z-index: 1;
+    right: 0px;
     border: 1px solid black;
-    border-top: none;
+ 
     margin: 0 -1px;
 }
 .states .wrapper .row-header{
     display: grid;
+    margin-bottom: 12px;
+    text-align: left;
     grid-template-columns: calc(100% - 60px) 60px ;
     padding: 2px 5px;
 }
@@ -226,6 +518,7 @@ export default {
     font-weight: bold;
 }
 .submodelHeader i{
+    position: relative;
     font-size: 15px;
     display: inline-block;
     margin-left: 15px;
@@ -253,5 +546,4 @@ export default {
         border-bottom: 1px solid black;
         margin: 0;
     }
-}
-</style>
+}</style>

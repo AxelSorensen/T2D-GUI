@@ -110,6 +110,7 @@ export default {
 .option {
     display: grid;
     line-height: 30px;
+    margin-bottom: 6px;
     grid-template-columns: 81px calc(100% - 111px) 30px;
 }
 .extra{
@@ -121,7 +122,7 @@ export default {
 p{
     text-align: left;
     margin: 0;
-    font-size: 1em;
+    font-size: .8em;
 }
 </style>
 

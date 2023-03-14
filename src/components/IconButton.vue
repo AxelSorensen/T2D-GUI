@@ -45,7 +45,7 @@ export default{
                 '--color': this.color,
                 '--h-color': this.getDarkerColor(this.color),
                 '--size' : this.fontSize + 'px',
-                '--h-size' : (this.fontSize + 5) + 'px',
+                '--h-size' : (this.fontSize * 1.2) + 'px',
             }
         }
     }

@@ -58,15 +58,14 @@ button{
   position: relative;
   padding: 10px;
   font-size: 15px;
-  line-height: 15px;
+  line-height: 12px;
   border: none;
   border-radius: 5px;
   cursor: pointer;
-  box-shadow: 0px 8px 15px rgba(0, 0, 0, 0.15);
-  transition: .5s;
 }
 button:hover{
-  box-shadow: 0px 8px 15px rgba(0, 0, 0, 0.5);
+  /* TODO change hover effect */
+  filter: brightness(90%);
 }
 .icon{
     color: var(--color);

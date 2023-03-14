@@ -2,10 +2,10 @@
 <div class="Param">
     <div  @click="showParam = !showParam" class="header">
         <p>{{paramType}}</p>
-        <i :class='{ "rotate": showParam }'><font-awesome-icon class="icon" icon="chevron-down"/></i>
+        <i :class='{ "rotate": showParam || showAll}'><font-awesome-icon class="icon" icon="chevron-down"/></i>
     </div>
     <Collapse>
-        <div ref="wrapper" class="param-content" v-show="showParam">
+        <div ref="wrapper" class="param-content" v-show="showParam || showAll">
             <!-- Check if Insulin selection should be displayed -->
             <div class="insulin" v-if="Insulin">
                 <label>Select insulin type:</label>
@@ -58,6 +58,10 @@ import Collapse from './Transitions/Collapse.vue'
 export default{
     name: "Parameter",
     props:{
+         /**
+         * A boolean specifying if all parameter dropdowns should be expanded
+         */
+        showAll: Boolean,
         /**
          * An array of parameters
          */
@@ -177,7 +181,7 @@ export default{
 .Param{
     position: relative;
     z-index: 10;
-    padding: 2.5%;
+    padding: 2px 10px;
 }
 .Param i{
     color: black;
@@ -198,13 +202,19 @@ export default{
 }
 .header p{
     text-align: left;
-    font-size: 1.2em;
+    font-size: 1em;
     line-height: 30px;
     font-weight: bold;
     margin: 0;
+    cursor: pointer;
+}
+
+.Param:hover{
+  background-color: rgb(241, 241, 241);
 }
 .header i{
-    font-size: 30px;
+    font-size: 20px;
+    
     transition: all .8s ease;
     transform: rotate(0deg);
 }
@@ -226,6 +236,7 @@ export default{
     padding: 5px 0;
 }
 label{
+    font-size: .8em;
     padding-right: 10px;
 }
 </style>

@@ -1,6 +1,7 @@
 <template>
     <div class="ImportantInfo">
-        <TextIconButton @click="show=!show" icon="fa-circle-exclamation" color="hsl(0, 100%, 50%)">Important information</TextIconButton>
+      <!-- TODO changed functionality of important info button. The text has been moved to Graph header -->
+        <TextIconButton icon="fa-circle-exclamation" color="hsl(0, 100%, 50%)">Important information</TextIconButton>
         <Collapse additionalStyle=true>
             <div class="Disclaimer" v-show="show">
             <span><b>This simulator is intended for teaching and research purposes only. Under no circumstances should it be used as a tool for self-treatment.</b></span><br/>
@@ -39,23 +40,16 @@ export default{
 </script>
 <style scoped>
 .ImportantInfo{
-    position: relative;
     width: auto;
     z-index: 4;
     text-align: right;
+
 }
 .Disclaimer{
-    position: absolute;
-    right: 0px;
-    width: 100%;
-    min-width: 600px;
-    background: white;
-    padding: 5px;
-    z-index: 11;
-    margin-right: -1px;
-    border: 1px solid black;
+ 
 }
 .Disclaimer span{
+  
     display: block;
 }
 .Disclaimer .source {

@@ -103,7 +103,7 @@ export default {
 
 .collapse-enter-active,
 .collapse-leave-active {
-    transition: all .8s ease;
+    transition: all .6s ease;
     overflow: hidden;
 }
 .collapse-enter-from,

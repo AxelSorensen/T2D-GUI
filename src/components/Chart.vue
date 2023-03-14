@@ -153,11 +153,13 @@ export default {
             },
             title: {
               display: true,
-              text: 'Time [dd:hh:mm]',
+              // TODO changed time format
+              text: 'Time [dd - hh:mm]',
               color: '#000',
               font: {
                 size: 15,
-                weight: 'bold',
+                // TODO change boldness of text
+                weight: 'medium',
                 lineHeight: 1.2,
               },
             }
@@ -172,6 +174,7 @@ export default {
               color: '#000',
               font: {
                 size: 15,
+                weight: 'medium',
                 lineHeight: 1.2,
               },
             }
@@ -187,6 +190,7 @@ export default {
               color: '#000',
               font: {
                 size: 15,
+                weight: 'medium',
                 lineHeight: 1.2,
               },
             }
@@ -286,16 +290,19 @@ export default {
           annotation: {
             annotations: {
               lGlycemia: {
+                borderWidth: 0,
                 display: false,
                 yScaleID: 'left-y-axis',
                 type: 'box',
+                
                 xMin: 0,
                 xMax: 1440,
                 yMin: 3.9,
                 yMax: 10,
-                backgroundColor: 'rgba(0, 255, 0, 0.25)'
+                backgroundColor: 'rgba(0, 255, 0, 0.1)'
               },
               rGlycemia: {
+                borderWidth: 0,
                 display: false,
                 yScaleID: 'right-y-axis',
                 type: 'box',
@@ -303,7 +310,7 @@ export default {
                 xMax: 1440,
                 yMin: 3.9,
                 yMax: 10,
-                backgroundColor: 'rgba(0, 255, 0, 0.25)'
+                backgroundColor: 'rgba(0, 255, 0, 0.1)'
               }
             }
           }
@@ -344,7 +351,7 @@ export default {
       time -= minutes * 60;
 
       // constructs time format
-      return this.padTime(days) + ":" + this.padTime(hours) + ":" + this.padTime(minutes)
+      return this.padTime(days) + " - " + this.padTime(hours) + ":" + this.padTime(minutes)
     },
     // Pad zero if the time is below 10
     padTime(time) {

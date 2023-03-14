@@ -1,6 +1,6 @@
 <template>
     <form id="novalidatedform" onsubmit="submitForm(event)" novalidate />
-    <h3>Model Rates:</h3>
+    <ParameterHeader text="Model rates:"/>
     <div class="rates">
         <div class="table-header">
             <p>Parameter</p><p>Value</p><p>Unit</p>
@@ -14,14 +14,15 @@
         </div>
     </div>
 
-    <h3>Model Parameters:</h3>
+    <ParameterHeader text="Model parameters:"/>
+    <div style="margin-top: 10px;">
     <label for="selector">Submodel:</label>
     <select name="selector" @change="changeShow">
         <option :key="index" v-for="(val, index) in Submodels">
             {{val}}
         </option>
     </select>
-
+  </div>
     <div class="table-header">
         <p>Parameter</p><p>Value</p><p>Unit</p>
     </div>
@@ -41,8 +42,12 @@
    * Loops through every submodel and the parameters related, and displays them.
    * @displayName Advanced Parameters
    */
+import ParameterHeader from './ParameterHeader.vue';
 export default {
     name: "Advanced",
+    components: {
+    ParameterHeader
+},
     props: {
         /**
          * The array of submodels from AdvancedParametersList.js
@@ -152,12 +157,21 @@ export default {
     grid-template-columns: 33% 33% 34%;
     padding-top: 10px;
 }
+
+input {
+  margin-bottom: 10px;
+}
 .row {
     display: grid;
     grid-template-columns: 33% 33% 34%;
 }
 p{
+    font-size: .8em;
     margin: 0;
     padding-bottom: 5px;
+}
+
+label {
+  font-size: .8em;
 }
 </style>

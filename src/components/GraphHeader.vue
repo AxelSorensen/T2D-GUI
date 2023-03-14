@@ -1,38 +1,33 @@
 <template>
-     <div class="header">
-        <div class="Settings">
-            <div class="sim">
-                <TextIconButton v-if="simRunning" @click="$emit('cancelSim')" icon="fa-xmark" color="hsl(0, 100%, 50%)" >Cancel Simulation</TextIconButton>
-                <TextIconButton v-else @click="$emit('simulate')" icon="fa-play" color="hsl(120, 100%, 30%)" >Simulate</TextIconButton>
-                <label for="simTime">Simulation time:</label>
-                <input @change="updateSimTime" type="number" min="1" name="simTime" :value="simPar.time"/>
-                <label for="simTime" class="days">day(s)</label>
-                <label v-if="simRunning"  :v-show="this.simProg" :v-html="updateProg">{{updateProg}}</label>
-            </div>
-            <div class="ZoomSettings">
-                <TextIconButton class="zoom-btn" @click="$emit('zoomChange',this.showNumDays)" icon="fa-magnifying-glass" color="hsl(120, 100%, 30%)" >Zoom</TextIconButton> 
-                to last <input type="number" :value="showNumDays" @change="zoomDaysAdjust($event, 'number')"/> Days
-                <TextIconButton class="zoom-btn" @click="$emit('zoomChange',0)" icon="fa-history" color="hsl(120, 100%, 30%)" >Reset Zoom</TextIconButton>
-            </div>
+  <div class="header">
+    <div id="graph-settings">
+      <div id="left-settings">
+        <TextIconButton v-if="simRunning" @click="$emit('cancelSim')" icon="fa-xmark" color="hsl(0, 100%, 50%)">Cancel
+          Simulation</TextIconButton>
+        <TextIconButton v-else @click="$emit('simulate')" icon="fa-play" color="hsl(120, 100%, 30%)">Simulate
+        </TextIconButton>
+        <label for="simTime">Simulation time:</label>
+        <input @change="updateSimTime" type="number" min="1" name="simTime" :value="simPar.time" />
+        <label for="simTime" class="days">day(s)</label>
+        <label v-if="simRunning" :v-show="this.simProg" :v-html="updateProg">{{ updateProg }}</label>
+      </div>
+
+      <div id="right-settings">
+        <div id="zoom-settings">
+          <TextIconButton class="zoom-btn" @click="$emit('zoomChange', this.showNumDays)" icon="fa-magnifying-glass">Zoom
+          </TextIconButton>
+          to last <input type="number" :value="showNumDays" @change="zoomDaysAdjust($event, 'number')" /> Days
         </div>
-        <!-- 
-            Buttons for important information and toggle to inputs when on smaller screens
-            And a wrapper for the advanced sim settings
-         -->
-        <div class="btns">
-            <TextIconButton @click="$emit('toggleVisible')" class="toggleVisible" icon="fa-chart-line">Show Parameters </TextIconButton>
-            <ImportantInfo class="GraphImportantInfo" />
-            <!-- 
-                Advanced settings dropdown
-            -->
-            <div class="advancedSimPar">
+        <TextIconButton v-if="!important_click" icon="fa-circle-exclamation" :class="{ important_clicked: important_click }" color="hsl(0, 100%, 50%)" @click="toggleImportant()">Important information</TextIconButton>
+        <TextIconButton v-else icon="xmark" :class="{ important_clicked: important_click }" color="hsl(0, 100%, 50%)" @click="toggleImportant()">Important information</TextIconButton>
+        <div class="advancedSimPar">
                 <IconButton @click="showAdvanced=!showAdvanced" icon="fa-sliders"/>
                 <Collapse additionalStyle=true>
                     <div v-show="showAdvanced" class="container">
-                        <!-- <label for="odeSolver">ode Solver:</label><select @change="updateOde" v-model="selected_solver">
+    <!-- <label for="odeSolver">ode Solver:</label><select @change="updateOde" v-model="selected_solver">
                             <option :key="solver" v-for="solver in solverList">{{solver}}</option>
                         </select>-->
-                        <div class="par">
+    <div class="par">
                             <label for="relTol">Relative tolerance: </label><input @change="update" type="number" name="relTol" :value="this.simPar.simSettings.rtol" step="0.00000001"/>
                         </div>
                         <div class="par">
@@ -84,8 +79,64 @@
                     </div>
                 </Collapse>
             </div>
+        <div :class="{ aau_clicked: aau_click }" id="aau-button" @click="toggleAAU()"><img v-if="!aau_click"
+            src="../assets/AAU_CENTER_WHITE_UK.png" alt="">
+          <IconButton class="x-icon" v-else icon="xmark" color="white" />
         </div>
+
+        <Collapse>
+          <div v-if="aau_click" id="aau-dropdown">
+
+
+            <div class="right">
+              <p>Contributors: Mohamad Al Ahdab, Deividas Eringis & John-Josef Leth </p>
+              <p>UI design: Mikkel Pedersen</p>
+              <p>Medical advisory board: Jakob Dal</p>
+              <p>Copyright © 2022 {{ version }}</p>
+            </div>
+            <nav>
+              <router-link to="/legal">EULA and cookie policy</router-link>
+            </nav>
+          </div>
+        </Collapse>
+        <Collapse>
+          <div v-if="important_click" id="important-dropdown">
+
+
+            <div class="Disclaimer">
+            <span><b>This simulator is intended for teaching and research purposes only. Under no circumstances should it be used as a tool for self-treatment.</b></span><br/>
+            <span>
+                <span>This simulator is developed by the Nonlinear and Optimal Control Lab at Aalborg University, and is based on the following paper:</span>
+                <span class="source"><a href="https://www.sciencedirect.com/science/article/pii/S1369703X21002461">[1] Glucose-Insulin Mathematical Model for the Combined Effect of Medications and Life Style of Type 2 Diabetic Patients , Biochemical Engineering Journal[DOI: 10.1016/j.bej.2021.108170]</a></span>
+                <ul>
+                    <li>All references (equation number, section number etc.,) refer to [1]. Additional material has been added to the simulator, this is indicated by the symbol *. </li>
+                    <li>For comments and questions, please contact John Leth at jjl@es.aau.dk</li>
+                </ul> 
+            </span>
+            </div>
+          </div>
+        </Collapse>
+
+
+        <!-- TODO removed reset zoom button -->
+        <!-- <TextIconButton class="zoom-btn" @click="$emit('zoomChange',0)" icon="fa-history" color="hsl(120, 100%, 30%)" >Reset Zoom</TextIconButton> -->
+      </div>
+
+    </div>
+    <!-- 
+            Buttons for important information and toggle to inputs when on smaller screens
+            And a wrapper for the advanced sim settings
+         -->
+    <!-- <div class="btns">
+            <TextIconButton @click="$emit('toggleVisible')" class="toggleVisible" icon="fa-chart-line">Show Parameters </TextIconButton> -->
+
+
+    <!-- 
+                Advanced settings dropdown
+            -->
+   
         </div>
+  
 </template>
 
 <script>
@@ -97,125 +148,185 @@ import ImportantInfo from './ImportantInfo.vue';
  * The component used as a container for the chart and the other things related to displaying the graphs.
  */
 export default {
-    name: "Graph Header",
-    components:{
-        Collapse,
-        IconButton,
-        TextIconButton,
-        ImportantInfo
+  name: "Graph Header",
+  components: {
+    Collapse,
+    IconButton,
+    TextIconButton,
+    ImportantInfo
+  },
+  props: {
+    simPar: Object,
+    simProg: 0.00,
+    simRunning: Boolean,
+    GlycemiaInterval: Object,
+    selected_solver: String,
+    solverList: Array
+  },
+  data() {
+    return {
+      showAdvanced: false,
+      showNumDays: 3,
+      lastShowNumDays: 3,
+      showNumDaysBox: 3,
+      ZoomToDaysBool: false,
+      aau_click: false,
+      important_click: false
+
+    }
+  },
+  emits: ["simulate", "cancelSim", "updateSimTime", "updateOde", "zoomChange", "toggleVisible", "updateAdvancedSimPar", "updateGlycemiaInterval"],
+  methods: {
+    resetZoomToDaysBool() {
+      this.ZoomToDaysBool = false;
+      this.showNumDays = this.lastShowNumDays
     },
-    props: {
-        simPar: Object,
-        simProg: 0.00,
-        simRunning: Boolean,
-        GlycemiaInterval: Object,
-        selected_solver: String,
-        solverList: Array
+
+    toggleAAU() {
+      this.aau_click = !this.aau_click;
+
+     
     },
-    data(){
-        return {
-            showAdvanced: false,
-            showNumDays: 3,
-            lastShowNumDays: 3,
-            showNumDaysBox:3,
-            ZoomToDaysBool: false
-        }
+    toggleImportant() {
+      this.important_click = !this.important_click;
+
     },
-    emits: ["simulate", "cancelSim", "updateSimTime","updateOde","zoomChange","toggleVisible","updateAdvancedSimPar","updateGlycemiaInterval"],
-    methods:{
-        resetZoomToDaysBool(){
-            this.ZoomToDaysBool=false;
-            this.showNumDays=this.lastShowNumDays
-        },
-        // Updates simulation time
-        updateSimTime(event){
-            let value = parseInt(event.srcElement.value);
-            value < 1 ? value = 1 : null
-            event.srcElement.value = value;
-            this.$emit("updateSimTime", event.srcElement.value)
-        },
-        // Updates the advanced simulation parameters
-        update(event){
-            event.srcElement.name==="clEnable"? this.$emit("updateAdvancedSimPar", {name:event.srcElement.name, val:event.srcElement.checked}):this.$emit("updateAdvancedSimPar", {name:event.srcElement.name, val:event.srcElement.value})
-            // console.log({name:event.srcElement.name, val:event.srcElement.checked})
-        },
-        intervalChange(event){
-            let value = event.srcElement.value;
-            let name = event.srcElement.name;
-            // Value must be zero or above
-            (value < 0) ? value = 0 : null;
-            // Lower bound must not be above upper, and upper must not be below lower
-            (name == 'lower' && value > this.GlycemiaInterval.upper) ? value = this.GlycemiaInterval.upper : 
-            (name == 'upper' && value < this.GlycemiaInterval.lower) ? value = this.GlycemiaInterval.lower : null;
-            event.srcElement.value = value;
-            this.$emit("updateGlycemiaInterval", {name: name, value:value});
-        },
-        updateOde(event){
-            this.$emit("updateOde", event.srcElement.value)
-        },
-        /**
-         * Updates the time axis minimum
-         * @param {*} event 
-         */
-        zoomDaysAdjust(event, number){
-            if(number != undefined){// number box change
-                let val = parseInt(event.srcElement.value);
-                val < 1 ? val = 1 : null
-                val > this.simPar.time ? val = this.simPar.time : null
-                this.showNumDays = parseInt(val);
-            }
-        }
+    // Updates simulation time
+    updateSimTime(event) {
+      let value = parseInt(event.srcElement.value);
+      value < 1 ? value = 1 : null
+      event.srcElement.value = value;
+      this.$emit("updateSimTime", event.srcElement.value)
     },
-    computed: {
-        /**
-         * Return a value between 0-100% dependent on the progress of the simulation
-         */
-        updateProg: function(){
-            return (typeof this.simProg.toFixed !== 'undefined')? this.simProg.toFixed(2)+"%": "";
-        },
+    // Updates the advanced simulation parameters
+    update(event) {
+      event.srcElement.name === "clEnable" ? this.$emit("updateAdvancedSimPar", { name: event.srcElement.name, val: event.srcElement.checked }) : this.$emit("updateAdvancedSimPar", { name: event.srcElement.name, val: event.srcElement.value })
+      // console.log({name:event.srcElement.name, val:event.srcElement.checked})
     },
+    intervalChange(event) {
+      let value = event.srcElement.value;
+      let name = event.srcElement.name;
+      // Value must be zero or above
+      (value < 0) ? value = 0 : null;
+      // Lower bound must not be above upper, and upper must not be below lower
+      (name == 'lower' && value > this.GlycemiaInterval.upper) ? value = this.GlycemiaInterval.upper :
+        (name == 'upper' && value < this.GlycemiaInterval.lower) ? value = this.GlycemiaInterval.lower : null;
+      event.srcElement.value = value;
+      this.$emit("updateGlycemiaInterval", { name: name, value: value });
+    },
+    updateOde(event) {
+      this.$emit("updateOde", event.srcElement.value)
+    },
+    /**
+     * Updates the time axis minimum
+     * @param {*} event 
+     */
+    zoomDaysAdjust(event, number) {
+      if (number != undefined) {// number box change
+        let val = parseInt(event.srcElement.value);
+        val < 1 ? val = 1 : null
+        val > this.simPar.time ? val = this.simPar.time : null
+        this.showNumDays = parseInt(val);
+      }
+    }
+  },
+  computed: {
+    /**
+     * Return a value between 0-100% dependent on the progress of the simulation
+     */
+    updateProg: function () {
+      return (typeof this.simProg.toFixed !== 'undefined') ? this.simProg.toFixed(2) + "%" : "";
+    },
+  },
 }
 </script>
 
 <style scoped>
-.header{
-    position: relative;
-    padding: 10px;
-    padding-top: 5px;
-    border-bottom: 1px black solid;
-    display: grid;
-    grid-template-columns: auto 220px;
-}
-.header .Settings{
-    display: grid;
-    grid-template-columns: 50% 50%;
-}
-.header .btns{
-    display: grid;
-    grid-template-columns: calc(100% - 30px) 30px;
-}
-.ZoomSettings{
-    padding-left: 25px;
-}
-.ZoomSettings .zoom-btn{
-    margin-right: 5px;
+/* NEW CSS */
+
+#aau-button {
+  background-color: #22234e;
+  height: 40px;
+  width: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50px;
+  float: right;
+  cursor: pointer;
 }
 
-.header label{
-    margin-left: 20px;
-    margin-right: 5px;
+#aau-button img {
+  width: 25px;
 }
-.header input{
-    width: 35px;
-    z-index: 2;
+
+.aau_clicked {
+  background-color: rgb(34, 35, 78, .5) !important;
 }
-.header .advancedSimPar{
-    position: relative;
-    width: auto;
-    z-index: 4;
+
+.important_clicked {
+  background-color: rgba(172, 172, 172, 0.5) !important;
 }
-.header .advancedSimPar input{
-    width: auto;
+
+
+.header {
+  position: relative;
+  padding: 16px;
+
+  display: flex;
+  justify-content: space-between;
+}
+
+.header #graph-settings {
+  position: relative;
+  width: 100%;
+  display: flex;
+  justify-content: space-between
+}
+
+#right-settings {
+  display: flex;
+  gap: 20px;
+  justify-content: center;
+  align-items: center;
+}
+
+.x-icon {
+  color: white;
+}
+
+
+.header .btns {
+  display: grid;
+  grid-template-columns: calc(100% - 30px) 30px;
+}
+
+.ZoomSettings {
+  padding-left: 25px;
+}
+
+.ZoomSettings .zoom-btn {
+  margin-right: 5px;
+}
+
+.header label {
+  margin-left: 20px;
+  margin-right: 5px;
+}
+
+.header input {
+  width: 35px;
+  z-index: 2;
+}
+
+.header .advancedSimPar {
+  position: relative;
+  width: auto;
+  z-index: 4;
+}
+
+.header .advancedSimPar input {
+  width: auto;
 }
 
 /* Chrome, Safari, Edge, Opera */
@@ -224,97 +335,153 @@ input::-webkit-inner-spin-button {
   -webkit-appearance: none;
   margin: 0;
 }
+
 /* Firefox */
 input[type=number] {
   -moz-appearance: textfield;
 }
-.header i{
-    position: relative;
-    font-size: 19px;
-    line-height: 19px;
-    padding: 10px;
-    cursor: pointer;
+
+#aau-dropdown {
+  display: grid;
+  align-items: center;
+  background-color: rgb(34, 35, 78);
+  height: 200px;
+  width: 400px;
+  border-radius: 10px;
+  position: absolute;
+  top: 70px;
+  right: 16px;
+  z-index: 10;
+  color: white;
+  padding: 6px;
+
 }
-.advancedSimPar .container{
-    position: absolute;
-    right: 0px;
-    width: 270px;
-    z-index: 10;
-    background: white;
-    border: 1px black solid;
-    margin-right: -1px;
+
+#important-dropdown {
+  display: grid;
+  align-items: center;
+  background-color: white;
+  height: 200px;
+  width: 400px;
+  border-radius: 10px;
+  position: absolute;
+  top: 60px;
+  right: 10%;
+  z-index: 10;
+  padding: 6px;
+  border: 1px solid black;
 }
-.advancedSimPar .par{
-    display: grid;
-    grid-template-columns: 70% 30%;
+
+#aau-dropdown a {
+  color: rgb(113, 234, 255);
+
 }
+
+.header i {
+  position: relative;
+  font-size: 19px;
+  line-height: 19px;
+  padding: 10px;
+  cursor: pointer;
+}
+
+.advancedSimPar .container {
+  position: absolute;
+  right: 0px;
+  width: 270px;
+  z-index: 10;
+  background: white;
+  border: 1px black solid;
+  margin-right: -1px;
+}
+
+.advancedSimPar .par {
+  display: grid;
+  grid-template-columns: 70% 30%;
+}
+
 .advancedSimPar .par input,
-.advancedSimPar .par label
-{
-    margin: 5px 0;
+.advancedSimPar .par label {
+  margin: 5px 0;
 }
-.advancedSimPar .GlycemiaInterval input{
-    width: 29px;
+
+.advancedSimPar .GlycemiaInterval input {
+  width: 29px;
 }
-.advancedSimPar .container .ClosedLoop h3{
-    border-top: 1px solid #22234e;
-    text-align: center;
-    margin: 5px 0px 5px 0px;
-    padding-top: 5px;
+
+.advancedSimPar .container .ClosedLoop h3 {
+  border-top: 1px solid #22234e;
+  text-align: center;
+  margin: 5px 0px 5px 0px;
+  padding-top: 5px;
 }
-.advancedSimPar .container .ClosedLoop .function{
-    text-align: center;
+
+.advancedSimPar .container .ClosedLoop .function {
+  text-align: center;
 }
+
 .advancedSimPar .container .ClosedLoop textarea {
-    width: 90%;
-    background: whitesmoke;
-    border: 1px solid #ccc;
-    border-bottom: 1px solid #22234e;
-    height: 120px;
-    resize: vertical;
-    overflow: hidden;
-    line-height: 15px;
-    padding: 5px;
+  width: 90%;
+  background: whitesmoke;
+  border: 1px solid #ccc;
+  border-bottom: 1px solid #22234e;
+  height: 120px;
+  resize: vertical;
+  overflow: hidden;
+  line-height: 15px;
+  padding: 5px;
 }
-.advancedSimPar .container .ClosedLoop .CLInit{
-    height: 30px;
+
+.advancedSimPar .container .ClosedLoop .CLInit {
+  height: 30px;
 }
-.days{
-    margin-left: 5px!important;
+
+
+.days {
+  margin-left: 5px !important;
 }
+
 @media only screen and (max-width: 1450px) {
-    .header {
-        grid-template-columns: 100%;
-        grid-template-rows: auto auto;
-    }
-    .header .btns{
-        grid-row: 1;
-        grid-template-columns: calc(100% - 30px) 30px;
-    }
-    .header .Settings{
-        grid-row: 2;
-    }
-    .ZoomSettings{
-        padding-left: 25px;
-    }
-    .ZoomSettings .zoom-btn{
-        margin-right: 5px;
-    }
+  .header {
+    grid-template-columns: 100%;
+    grid-template-rows: auto auto;
+  }
+
+  .header .btns {
+    grid-row: 1;
+    grid-template-columns: calc(100% - 30px) 30px;
+  }
+
+  .header .graph-settings {
+
+    grid-row: 1;
+  }
+
+  .ZoomSettings {
+    padding-left: 25px;
+  }
+
+  .ZoomSettings .zoom-btn {
+    margin-right: 5px;
+  }
 }
+
 @media only screen and (max-width: 1000px) {
-    .header .btns{
-        grid-template-columns: calc(50% - 15px) calc(50% - 15px) 30px;
-    }
+  .header .btns {
+    grid-template-columns: calc(50% - 15px) calc(50% - 15px) 30px;
+  }
 }
+
 @media only screen and (max-width: 600px) {
-    #graph{
-        padding: 0px;
-    }
-    .header {
-        padding-top: 0px;
-    }
-    .header .Settings{
-        padding-top: 0;
-    }
-}
-</style>
+  #graph {
+    padding: 0px;
+  }
+
+  .header {
+    padding-top: 0px;
+  }
+
+  .header .graph-settings {
+    padding-top: 0;
+  }
+}</style>
