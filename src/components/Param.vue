@@ -1,11 +1,12 @@
 <template>
 <div class="Param">
-    <div  @click="showParam = !showParam" class="header">
+    <div  @click="handleShowParam" :class="{'header': true, 'in-use' : inUse}">
         <p>{{paramType}}</p>
-        <i :class='{ "rotate": showParam || showAll}'><font-awesome-icon class="icon" icon="chevron-down"/></i>
+        <i :class='{ "rotate": showParam && showAll}'><font-awesome-icon class="icon" icon="chevron-down"/></i>
     </div>
     <Collapse>
-        <div ref="wrapper" class="param-content" v-show="showParam || showAll">
+       <!-- Expands parameter dropdown if showParam is true -->
+        <div ref="wrapper" class="param-content" v-show="showParam && showAll">
             <!-- Check if Insulin selection should be displayed -->
             <div class="insulin" v-if="Insulin">
                 <label>Select insulin type:</label>
@@ -47,6 +48,7 @@
         </div>
     </Collapse>
 </div>
+
 </template>
 <script>
 import FourOptionList from "./FourOption-List.vue";
@@ -62,6 +64,10 @@ export default{
          * A boolean specifying if all parameter dropdowns should be expanded
          */
         showAll: Boolean,
+        /**
+         * A boolean specifying if the parameter is in use
+         */
+        inUse : Boolean,
         /**
          * An array of parameters
          */
@@ -121,8 +127,11 @@ export default{
          */
         Index: String,
     },
-    emits: ['add-param', 'deleteParam', 'updateValue', 'updateRepeat','updateInsulin'],
+    emits: ['add-param', 'deleteParam', 'updateValue', 'updateRepeat','updateInsulin','showAll'],
     methods: {
+        handleShowParam() {
+          this.showParam = !this.showParam;
+        },
         // Emits the event of child component
         updateValue(par){
             /**
@@ -173,14 +182,22 @@ export default{
         FourOptionList,
         ThreeOptionList,
         Collapse
-    }
+    },
+    watch: { 
+        showAll: function(newVal, oldVal) { // watch it
+          if(newVal == false) {
+            this.showParam = false;
+          }
+        }
+      }
+
 }
 </script>
 
 <style scoped>
-.Param{
+.Param {
     position: relative;
-    z-index: 10;
+    z-index: 2;
     padding: 2px 10px;
 }
 .Param i{
@@ -204,7 +221,7 @@ export default{
     text-align: left;
     font-size: 1em;
     line-height: 30px;
-    font-weight: bold;
+    font-weight: 500;
     margin: 0;
     cursor: pointer;
 }
@@ -224,6 +241,14 @@ export default{
 .param-content{
     position: relative;
     z-index: 10;
+}
+
+.in-use p {
+  font-weight: 600;
+}
+.in-use p:before {
+  content: "• ";
+
 }
 .insulin{
     position: relative;

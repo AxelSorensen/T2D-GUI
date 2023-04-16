@@ -39,6 +39,7 @@ export default{
     grid-template-columns: 30px calc(100% - 60px) 30px;
 }
 h2{
+
     border: none;
     grid-column: 2;
     padding: 5px 0px;

@@ -111,6 +111,7 @@ export default {
                 '--width': this.width + 'px',
                 '--left': this.left + 'px',
                 '--top': this.top + 'px',
+                
             }
         }
     }
@@ -151,6 +152,7 @@ export default {
     outline: 3px solid black;
     outline-offset: -2px;
     transition: .15s;
+    
 }
 .datalist option{
     display: block;
@@ -160,6 +162,8 @@ export default {
     z-index: 1;
     cursor: pointer;
     padding: 5px;
+    font-size: .8em;
+    font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
 }
 .datalist option:hover{
     background: blue;

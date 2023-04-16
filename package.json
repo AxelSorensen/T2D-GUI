@@ -30,7 +30,8 @@
     "vue-chartjs": "^4.1.1",
     "vue-chartkick": "^1.1.0",
     "vue-cookies": "^1.8.2",
-    "vue-router": "^4.0.3"
+    "vue-router": "^4.0.3",
+    "vue-tour": "^2.0.0"
   },
   "devDependencies": {
     "@vue/cli-plugin-babel": "~5.0.0",
@@ -38,7 +39,7 @@
     "@vue/cli-plugin-router": "~5.0.0",
     "@vue/cli-service": "~5.0.0",
     "javascript-obfuscator": "^4.0.0",
-    "vue-cli-plugin-styleguidist": "^3.26.2",
+    "vue-cli-plugin-styleguidist": "^4.57.2",
     "webpack": "^5.73.0",
     "webpack-obfuscator": "^3.5.1",
     "worker-loader": "^3.0.8"

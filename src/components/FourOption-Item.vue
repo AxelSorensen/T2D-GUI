@@ -63,8 +63,8 @@ export default {
             this.$emit('updateValue', {id:this.param.id, valueType:value.srcElement.name, value:value.srcElement.value,})
         },
         updateTime(par){
-            // Checks if the start time is above the end time, if it is sets end time=start time
-            par.name === "startTime" ? par.val > this.param.endTime ? this.$emit('updateValue', {id:this.param.id, valueType:'endTime', value:par.val}) : null : 
+            // Checks if the start time is above the end time, if it is sets end time=start time (+ 30 because that is the default end time)
+            par.name === "startTime" ? par.val > this.param.endTime ? this.$emit('updateValue', {id:this.param.id, valueType:'endTime', value:par.val+30}) : null : 
             // Checks if the end time is below the start time, if it is sets start time=endt time
             par.name === "endTime" ? par.val < this.param.startTime ? this.$emit('updateValue', {id:this.param.id, valueType:'startTime', value:par.val}) : null : null
             

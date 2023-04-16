@@ -13,7 +13,6 @@ https://doi.org/10.1016/j.bej.2021.108170.
 Abstract: The goal of this paper is to propose a new mathematical model for the combined effect of different treatments and lifestyles on the glucose-insulin dynamics of Type 2 diabetes (T2D) patients. The model gives the possibility to take into consideration physical activity, stress, meals, and medications while evaluating or designing treatment plans for T2D patients. The model is proposed by combining and modifying some of the available models in the literature. Simulations were performed for the modifications to show how the model confirm with literature on T2D patients. Additionally, a discussion is provided to demonstrate the ability of the model to be used in the assessment of treatment plans and in the design for robust insulin dose guidance algorithms. An open source code for the model is additionally provided.
 Keywords: Glucose; Modelling; Simulation; T2D
 */
-
 // const pmol_per_U = 6000;
 
 // physiological model of virtual patient

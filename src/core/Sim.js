@@ -411,15 +411,15 @@ class Sim {
         // this.jac = undefined; 
         // ------------------------------------------------------------
     };
-    inInterval(t, paVector) {
-        var PA = 0;
-        for (let i = 0; i < paVector.length; i++) {
-            if (t >= paVector[i][0][0] && t < paVector[i][paVector[0].length - 1][0]) {
-                PA += paVector[i][0][1];
-            }
-        }
-        return PA;
-    }
+    inInterval(t, vector) {
+      var PA = 0;
+      for (let i = 0; i < vector.length; i++) {
+          if (t >= vector[i][0][0] && t < vector[i][vector[i].length - 1][0]) {
+              PA += vector[i][0][1];
+          }
+      }
+      return PA;
+  }
     debug_Sim(simPar) {
         function fode(t, x) {
             let mu = 5;
@@ -1099,7 +1099,7 @@ class Sim {
         x['MIHGU'] = 1;
         let rates = { rPIR: rPIR, rBGU: rBGU, rRBCU: rRBCU, rGGU: rGGU, rPGU: rPGU, rHGP: rHGP, rHGU: rHGU };
 
-        // Zero initial conditions:
+        // Zero initial conditions: Seems like index number has been shifted by one e.g. x['XIinj'] is 53 not 54.
         x['De'] = 0; //47
         x['DNq'] = 100.0 * Number.EPSILON ** 0.5; //48
         x['TE'] = 0; //49
@@ -1917,7 +1917,8 @@ class Sim {
         dx_dt[14] = (1 / VIPF) * ((VIPF / TIP) * (x[13] - x[14]) - rPIC);
         dx_dt[51] = rLIC + rKIC + rPIC;
         dx_dt[52] = (1 - stress) * rPIR;
-        dx_dt[53] = VIPF * rla * bla * x[36] / (1 + x[14]) + VIPF * rfa * bfa * x[33] / (1 + x[14]);
+        dx_dt[53] = x[54] + x[55];
+        // dx_dt[53] = VIPF * rla * bla * x[36] / (1 + x[14]) + VIPF * rfa * bfa * x[33] / (1 + x[14]);
         return dx_dt;
     };
     

@@ -1,5 +1,5 @@
 <template>
-  <div :class="{'graph_container_normal': !graphMaximized, 'graph_container_maximized': graphMaximized}">
+  <div :class="{ 'graph_container_normal': !graphMaximized, 'graph_container_maximized': graphMaximized }">
     <div id="right-top">
       <GraphHeader id="graph-header" :simPar="simPar" :simRunning="simRunning" :simProg="simProg"
         :GlycemiaInterval="GlycemiaInterval" @simulate="$emit('simulate')" @cancelSim="$emit('cancelSim')"
@@ -10,32 +10,32 @@
         Subheader (States, patient watermark, maximize)
     -->
       <!-- TODO remove graph subheader aka. STATES -->
-      
+
       <!-- 
         Chart area
      -->
       <div class="chart">
-        <IconToggleButton  @click="graphMaximized = !graphMaximized" class="maximize" :show="!graphMaximized" />
+        <IconToggleButton @click="graphMaximized = !graphMaximized" class="maximize" :show="!graphMaximized" />
         <div class="overlay" v-if="newSimRequired">
           <div class="content">
             <span>Information has changed please simulate again.</span>
-            <IconButton @click="closeOverlay" class="close" icon="xmark" />
           </div>
+          
         </div>
         <Chart ref="chartComponent" class="chart-graph" :chartData="graphData" :xMax="simPar.time * 1440"
           :simProg="simProg" :zoom="!simRunning" :showSecondAxis="showSecondAxis" :showGlycemia="showGlycemia"
           :GlycemiaInterval="GlycemiaInterval" :GH="displayStates.GH" :axisTitleChange="axisTitleChange"
           :AxisTitle="AxisTitle" :graphScroll="graphScroll" />
-          
-        
+
+
         <!-- TODO removed save graph pic icon -->
-        <!-- <IconButton class="downloadGraph" @click="DownloadChart" icon="fa-save" /> -->
+        <IconButton class="downloadGraph" @click="DownloadChart" icon="fa-save" />
       </div>
       <div id="subgraph">
         <div id="plot-against">
           <label>Plot: </label>
           <select name="compare" @change="changeCompare">
-            <option>None</option>
+
             <option :key="item.name" v-for="item in getCompare(compareTo)" :selected="item.name == compare">
               {{ item.name }}
             </option>
@@ -48,21 +48,19 @@
             </option>
           </select>
         </div>
-        
-        <!-- <div class="options">
-            <div :key="index" v-for="(par, index) in parameters">
-                <input @change="checkboxChange" type="checkbox" :id=index><label :for=index>{{par.Name}}</label>
-            </div>
-        </div> -->
-        <GraphSubheader
-        :activePatient="activePatient"
-        :maximized="maximized"
-        :display="display"
-        :displayStates="displayStates"
-        :subModel="subModel"
-        :tooltips="tooltips"
-        @toMaximize="$emit('toMaximize')"
-        @stateDisplayChange="$emit('stateDisplayChange', $event)" />
+
+        <div class="options">
+          <div :key="index" v-for="(par, index) in parameters" @click="checkboxChange(index,display[index])">
+            <font-awesome-icon :class="display[index] ? 'icon enabled' : 'icon disabled'" :id=index
+                  :icon="display[index] ? 'fa-solid fa-eye' : 'fa-solid fa-eye-slash'"/>
+            <!-- <input @change="checkboxChange" type="checkbox" :id=index :checked=display[par.Name]> -->
+            <!-- v-if="this.simPar.parVector[index].data.length > 0" -->
+            <label :for=index>{{ par.Name }}</label>
+          </div>
+        </div>
+        <GraphSubheader :activePatient="activePatient" :maximized="graphMaximized" :display="display"
+          :displayStates="displayStates" :subModel="subModel" :tooltips="tooltips" @toMaximize="$emit('toMaximize')"
+          @stateDisplayChange="$emit('stateDisplayChange', $event)" @stateReset="$emit('stateReset')"/>
 
       </div>
     </div>
@@ -80,7 +78,9 @@
           </div>
           <div>
             <h2>Import patient</h2>
-            <p class="tooltip">Patient file <span class="tooltiptext" style="width: 200px; right: -250px; bottom: 0px">The patient file is a JSON-formatted file containing all information for the simulator, including saved responses and input parameters.</span></p>
+            <p class="tooltip">Patient file <span class="tooltiptext" style="width: 200px; right: -250px; bottom: 0px">The
+                patient file is a JSON-formatted file containing all information for the simulator, including saved
+                responses and input parameters.</span></p>
             <div class="row buttons">
               <TextIconButton @click="$emit('importFile')" icon="fa-upload">Upload</TextIconButton>
               <TextIconButton @click="$emit('exportFile')" icon="fa-download">Download</TextIconButton>
@@ -90,9 +90,9 @@
 
         </div>
         <div>
-          <h2>Response statistics</h2>
+        
           <div class="wrapper">
-
+            <h2>Response statistics</h2>
             <div class="stat">
               <p>Response Name</p>
               <p>HbA1c [mmol/mol]</p>
@@ -101,16 +101,17 @@
             </div>
             <div class="stat" :key="item.name" v-for="(item, index) in response">
               <p class="ResponseName">{{ item.name }}</p>
-              <p>{{ item.stats.HbA1c_IFCC }}</p>
-              <p>{{ item.stats.eAG }}</p>
-              <p>{{ item.stats.GHavg }}</p><a v-show="shouldDelete(item.name)"
+              <p class="data">{{ item.stats.HbA1c_IFCC }}</p>
+              <p class="data">{{ item.stats.eAG }}</p>
+              <p class="data">{{ item.stats.GHavg }}</p><a v-show="shouldDelete(item.name)"
                 @click="$emit('DeleteResponse', { name: item.name, index: index })"><font-awesome-icon class="icon"
                   icon="xmark" /></a>
             </div>
           </div>
-          
+          <IconButton class="download" @click="$emit('DownloadResponse')" icon="fa-download" fontSize="20" />
+
         </div>
-        <IconButton icon="download" id="download-button" fontSize="20" @click="$emit('openDownload')" />
+
         <!-- <div>
           <h2>Export</h2>
           <div class="text-icon"> <p>Simulation settings</p><i><font-awesome-icon class="icon" icon="fa-solid fa-download" /></i></div>
@@ -244,11 +245,10 @@ export default {
       responseName: '',
     }
   },
-  emits: ["simulate", "cancelSim", "updateSimTime", "updateGraphContent", "updateAdvancedSimPar", "stateDisplayChange", "saveNewResponse", "changeCompare", "importFile", "exportFile", "toMaximize", "updateGlycemiaInterval", "DownloadResponse", "DeleteResponse", "updateOde", "closeOverlay", "toggleVisible"],
+  emits: ["simulate", "cancelSim", "updateSimTime", "updateGraphContent", "updateAdvancedSimPar", "stateDisplayChange", "saveNewResponse", "changeCompare", "importFile", "exportFile", "toMaximize", "updateGlycemiaInterval", "DownloadResponse", "DeleteResponse", "updateOde", "closeOverlay", "toggleVisible", "stateReset"],
   methods: {
     togglePlotting() {
       this.plotting_click = !this.plotting_click;
-      console.log('Gda')
     },
     convertMinutesToTime(minutes) {
       const hours = Math.floor(minutes / 60);
@@ -261,9 +261,9 @@ export default {
       console.log('Zoom change', days)
       this.$refs.chartComponent.ZOOOM(days)
     },
-    checkboxChange(event) {
-      console.log({ key: event.srcElement.id, bool: event.srcElement.checked })
-      this.$emit("updateGraphContent", { key: event.srcElement.id, bool: event.srcElement.checked })
+    checkboxChange(parameter,checked) {
+
+      this.$emit("updateGraphContent", { key: parameter, bool: !checked })
     },
     changeCompare(event) {
       this.$emit("changeCompare", { name: event.srcElement.name, val: event.srcElement.value })
@@ -311,8 +311,13 @@ export default {
       resp = resp.filter((item) => item.name !== ItemToFilter)
       return resp
     },
-  },
+    mounted() {
+
+    },
+  }
+
 }
+
 </script>
 
 <style scoped>
@@ -335,7 +340,7 @@ export default {
   position: relative;
   height: 100%;
   display: grid;
-  grid-template-columns: 1fr 2fr .1fr;
+  grid-template-columns: 1fr 2fr 5px;
   gap: 24px;
 
 }
@@ -349,7 +354,7 @@ th {
 }
 
 #right-top {
-  
+
   background-color: white;
   display: flex;
   flex-direction: column;
@@ -401,7 +406,9 @@ input[type=number] {
 .chart {
   position: relative;
   padding: 0px 20px;
-
+  border-radius: 5px;
+  z-index: 0;
+  
 }
 
 
@@ -419,26 +426,33 @@ h2 {
 
 .chart .overlay {
   position: absolute;
-  z-index: 2;
+  z-index: -1;
   width: calc(100% - 40px);
   height: 100%;
   background-color: rgb(0, 0, 0);
   /* Fallback color */
-  background-color: rgba(0, 0, 0, 0.4);
+  background-color: rgba(255, 0, 0, .05);
   /* Black w/ opacity */
+  border-radius: 5px;
 }
 
 
 
 .chart .overlay .content {
-  position: relative;
-  top: 50%;
-  transform: translateY(-50%);
-  background-color: #fefefe;
-  margin: auto;
-  padding: 20px;
-  border: 1px solid #888;
-  width: 250px;
+  position: absolute;
+  display: flex;
+  gap: 8px;
+  flex-direction: column;
+  bottom: 0px;
+
+  width: 100px;
+  color: red;
+  font-weight: bold;
+  font-size: 14px;
+  padding: 6px;
+  width: 100%;
+  text-align: left;
+  
 }
 
 .chart .overlay .close {
@@ -457,10 +471,14 @@ h2 {
   text-decoration: none;
 }
 
+.resimulate {
+  text-align: center;
+}
+
 .downloadGraph {
   position: absolute;
-  right: 0;
-  bottom: 50px;
+  right: 24px;
+  bottom: 40px;
 }
 
 
@@ -476,21 +494,23 @@ h2 {
 }
 
 
- #plotting-options {
-
- }
+#plotting-options {}
 
 
 .options label {
+  cursor: pointer;
   font-size: 10px;
   padding-right: 6px;
 }
-.options input{
+
+.options input {
   position: relative;
   top: 3px;
 }
 
 .options {
+  cursor: pointer;
+  gap: 6px;
   display: flex;
   align-items: center;
   justify-items: center;
@@ -524,7 +544,7 @@ p {
 
 
 .wrapper {
-  height: 20vh;
+  height: 23vh;
   position: relative;
   margin: 0;
   overflow-y: scroll;
@@ -532,14 +552,18 @@ p {
 
 .download {
   position: absolute;
-  top: 1em;
-  right: 5px;
+  top: 0px;
+  right: 0px;
 }
 
 #patient-upload {
   display: flex;
   flex-direction: column;
   align-items: center;
+}
+
+.data {
+  font-weight: bold;
 }
 
 .response {
@@ -571,6 +595,18 @@ p {
 .iconbig {
   width: 20px;
   height: 20px;
+}
+
+.icon {
+  margin-bottom: -1px;
+  margin-right: 4px;
+  width: 15px;
+  height: 15px;
+  cursor: pointer;
+}
+
+.disabled {
+  color: rgb(215, 215, 215);
 }
 
 .response .row:nth-child(2) {
@@ -609,6 +645,7 @@ p {
   right: 22px;
   top: 30px;
 }
+
 .response .row:nth-child(3),
 .response .row:nth-child(4),
 .response .row:nth-child(6) {

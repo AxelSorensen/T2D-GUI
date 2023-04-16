@@ -5,28 +5,32 @@
  * Note: Make sure you hide the yAxisID in the chart.vue file. (Just Copy-paste from the existing and change id)
  */
 
+const colors = {Meals: 'rgba(0, 72, 255, 0.25)', PA: 'rgba(255, 153, 0, 0.25)', Stress: 'rgba(0, 0, 0, 0.25)', Metformin: 'rgba(198, 29, 181, 0.25)', GLP: 'rgba(154, 53, 25, 0.25)',LAI: 'rgba(49, 25, 154, 0.25)',FAI: 'rgba(8, 180, 174, 0.25)'}
+
+
 var Parameters = {
     /**
      * List of Parameters and their corresponding information
+     * Setting the order higher means that the parameters will be drawn on the graph first
     */
     Parameters: {
-        Meals: {Name: "Meals", Unit: "Carbohydrates [g]", Type: "External factors", Duration: false, Insulin: false, predefinedDose: [], axisID:"y1", color:"#ff6666"},
-        PA: {Name: "Physical Activity", Unit: "Heart Beat Increase [BPM]", Type: "External factors", Duration: true, Insulin: false, predefinedDose: [], axisID:"y2", color:"#66ff66"},
-        Stress: {Name: "Stress", Unit: "Level [%]", Type: "External factors", Duration: true, Insulin: false, predefinedDose: [], axisID:"y3", color:"#ff66f"},
-        Metformin: {Name: "Metformin", Unit: "Size [mg]", Type: "Treatment", Duration: false, Insulin: false, predefinedDose: ['500', '1000', '1500', '2000'], axisID:"y4", color:"#6666ff"},
-        GLP: {Name: "GLP-1 agonists", Unit: "Size", Type: "Treatment", Duration: false, Insulin: false, predefinedDose: [{'Daily GLP-1': ['5', '10'], 'Weekly GLP-1': ['0.25', '0.5', '1']},], axisID:"y7", color:"#ffb366"},
-        LAI: {Name: "Long Acting Insulin", Unit: "Size [U]", Type: "Treatment", Duration: false, Insulin: true, predefinedDose: [], axisID:"y5", color:"#ffff66"},
-        FAI: {Name: "Fast Acting Insulin", Unit: "Size [U]", Type: "Treatment", Duration: false, Insulin: true, predefinedDose: [], axisID:"y6", color:"#66ffff"},
+        Meals: {Name: "Meals", Unit: "Carbohydrates [g]", Type: "External factors", order: 2, Duration: false, Insulin: false, predefinedDose: [], axisID:"y1", color:colors.Meals, borderDash: [5,5]},
+        PA: {Name: "Physical Activity", order: 2, Unit: "Heart Beat Increase [BPM]", Type: "External factors", Duration: true, Insulin: false, predefinedDose: [], axisID:"y2", color:colors.PA ,borderDash: [5,5],fill: true, order: 3, fillColor: "rgba(215, 124, 45, .1)"},
+        Stress: {Name: "Stress", Unit: "Level [%]", Type: "External factors", Duration: true, Insulin: false, order: 3, predefinedDose: [], axisID:"y3", borderDash: [5,5], color: colors.Stress, fill: true,fillColor: "rgba(90, 92, 101, 0.1)"},
+        Metformin: {Name: "Metformin", order: 2, Unit: "Size [mg]", Type: "Treatment", Duration: false, Insulin: false, predefinedDose: ['500', '1000', '1500', '2000'], borderDash: [5,5], axisID:"y4", color: colors.Metformin},
+        GLP: {Name: "GLP-1 agonists", borderDash: [5,5], order: 2, Unit: "Size", Type: "Treatment", Duration: false, Insulin: false, predefinedDose: [{'Daily GLP-1': ['5', '10'], 'Weekly GLP-1': ['0.25', '0.5', '1']},], axisID:"y7", color:colors.GLP},
+        LAI: {Name: "Long Acting Insulin", borderDash: [5,5], order: 2, Unit: "Size [U]", Type: "Treatment", Duration: false, Insulin: true, predefinedDose: [], axisID:"y5", color:colors.LAI},
+        FAI: {Name: "Fast Acting Insulin", borderDash: [5,5], order: 2, Unit: "Size [U]", Type: "Treatment", Duration: false, Insulin: true, predefinedDose: [], axisID:"y6", color:colors.FAI},
         // DPP: {Name: "DPP-4", Unit: "Size [mg]", Type: "Treatment", Duration: false, Insulin: false, predefinedDose: ['50', '100', '150', '200'], axisID:"y8", color:"#66ffa8"},
     },
     defaultParameterValues: {
-        Meals: {time: 0, value:0, type:'Medium'},
-        PA: {startTime:0, endTime:1, value:0},
-        Stress: {startTime:0, endTime:1, value:0},
-        Metformin: {time:0, value:0},
-        LAI: {time:0, value:0},
-        FAI: {time:0, value:0},
-        GLP: {time:0, value:0, type:'Weekly GLP-1'},
+        Meals: {time: 60, value:50, type:'Medium (approximately 60)'},
+        PA: {startTime:0, endTime:30, value:50, type:'BPM increase'},
+        Stress: {startTime:0, endTime:30, value:50, type: '% stress'},
+        Metformin: {time:60, value:500, type: '[mg]'},
+        LAI: {time:60, value:10, type: '[U]'},
+        FAI: {time:60, value:10, type: '[U]'},
+        GLP: {time:60, value:10, type:'[mg]'},
         DPP: {time:0, value:0},
     },
     Types: ["External factors", "Treatment"],

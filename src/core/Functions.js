@@ -258,6 +258,7 @@ var parFunction = {
             for (let i = 0; i < array.length; i++) {
                 displayArray.push([array[i][0], NaN])
                 displayArray.push([array[i][0], 0])
+                //Place for controlling whether to make all lines (meals, metformin etc.) same length regardless of value
                 displayArray.push(array[i]);
                 displayArray.push([array[i][0], 0])
                 displayArray.push([array[i][0], NaN])

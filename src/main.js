@@ -2,10 +2,13 @@ import { createApp } from 'vue'
 import App from './App.vue'
 import VueChartkick from 'vue-chartkick'
 import 'chartkick/chart.js'
+import VueTour from 'vue-tour'
 
 
 import { library } from '@fortawesome/fontawesome-svg-core'
 import { faXmark } from '@fortawesome/free-solid-svg-icons'
+import { faEye } from '@fortawesome/free-solid-svg-icons'
+import { faEyeSlash } from '@fortawesome/free-solid-svg-icons'
 import { faGear } from '@fortawesome/free-solid-svg-icons'
 import { faCheck } from '@fortawesome/free-solid-svg-icons'
 import { faChevronDown } from '@fortawesome/free-solid-svg-icons'
@@ -55,4 +58,10 @@ library.add(faEllipsisVertical)
 library.add(faChevronLeft)
 library.add(faHistory)
 library.add(faMagnifyingGlass)
-createApp(App).use(router).use(router).use(require('vue-cookies')).use(VueChartkick).component('font-awesome-icon', FontAwesomeIcon).mount('#app')
+library.add(faEye)
+library.add(faEyeSlash)
+createApp(App).use(router).use(router).use(require('vue-cookies')).use(VueChartkick).component('font-awesome-icon', FontAwesomeIcon).directive('focus', {
+  mounted: function (el, binding) {
+    el.focus()
+  }
+}).mount('#app')

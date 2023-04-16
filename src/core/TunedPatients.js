@@ -1,5 +1,5 @@
 import Sim from './Sim.js'
-var TunedPatiens = {
+var TunedPatients = {
     patient_default(patient, simPar, sim) {
         /*
         app.InsulinSensitivitySlider.Value=3;
@@ -437,4 +437,4 @@ var TunedPatiens = {
         return [patient, sim]
     }
 }
-export default TunedPatiens
+export default TunedPatients

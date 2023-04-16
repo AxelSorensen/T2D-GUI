@@ -6,12 +6,12 @@
 <script>
 // Setup stuff (can be used to remove elements if not needed to minimize file size)
 import { Scatter } from 'vue-chartjs'
-import { Chart as ChartJS, Title, Tooltip, Legend, CategoryScale, LinearScale, Chart } from 'chart.js'
+import { Chart as ChartJS, Title, Tooltip, CategoryScale, LinearScale, Chart, Filler } from 'chart.js'
 import zoomPlugin from 'chartjs-plugin-zoom';
 import annotationPlugin from 'chartjs-plugin-annotation';
 import TextIconButton from './TextIconButton.vue';
 // Registers the plugins
-ChartJS.register(Title, Tooltip, Legend, CategoryScale, LinearScale);
+ChartJS.register(Title, Tooltip, CategoryScale, LinearScale, Filler);
 Chart.register(zoomPlugin);
 Chart.register(annotationPlugin);
 
@@ -119,6 +119,9 @@ export default {
     graphScroll: function (newVal, oldVal) {
       this.chartOptions.plugins.zoom.zoom.wheel = newVal
     }
+  },
+  mounted() {
+    console.log(this.chartData)
   },
   data() {
     return {
@@ -240,6 +243,13 @@ export default {
           }
         },
         plugins: {
+          filler: {
+            propagate: true
+          },
+          pan: {
+            enabled: true,
+            mode: 'x',
+          },
           tooltip: {
             callbacks: {
               // Changes the title to display the time in [dd:hh:mm]
@@ -299,7 +309,7 @@ export default {
                 xMax: 1440,
                 yMin: 3.9,
                 yMax: 10,
-                backgroundColor: 'rgba(0, 255, 0, 0.1)'
+                backgroundColor: 'rgba(0, 255, 0, 0.05)'
               },
               rGlycemia: {
                 borderWidth: 0,
@@ -310,7 +320,7 @@ export default {
                 xMax: 1440,
                 yMin: 3.9,
                 yMax: 10,
-                backgroundColor: 'rgba(0, 255, 0, 0.1)'
+                backgroundColor: 'rgba(0, 255, 0, 0.05)'
               }
             }
           }

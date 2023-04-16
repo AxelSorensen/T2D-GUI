@@ -5,11 +5,11 @@ var Display = {
     // Predefined colors for the first 6 displayed states
     colors: [
         "hsl(0, 100%, 50%)",
-        "hsl(120, 100%, 50%)",
-        "hsl(60, 100%, 50%)",
-        "hsl(180, 100%, 50%)",
+        "hsl(109, 100%, 40%)",
+        "hsl(208, 100%, 50%)",
+        "hsl(27, 100%, 50%)",
         "hsl(240, 100%, 50%)",
-        "hsl(300, 100%, 50%)",
+        "hsl(290, 100%, 50%)",
     ],
     colorInUse: [false, false, false, false, false, false],
     /**
@@ -136,7 +136,8 @@ var Display = {
  
             });
         }
-        return { label: label, yAxisID: axis, backgroundColor: color, borderColor: color, data: data };
+        return { label: label, yAxisID: axis, backgroundColor: color, borderColor: color, data: data, order: 1};
+        // Order is set to 1, so that all graphics with higher order will be drawn behind
     },
     /**
      * Generates a random color in hsl format

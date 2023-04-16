@@ -173,5 +173,6 @@ p{
 
 label {
   font-size: .8em;
+
 }
 </style>
