@@ -2,7 +2,7 @@
     <div class="customTime">
         <!-- Checks if [dd] should be displayed-->
         <input v-show="toShow" @change="updateTime" @focus="$event.target.select()" name="day" type="number" :value="day" min="1" :max="weeklyRep ? 7 : null" autocomplete="off" /><a v-show="toShow">:</a>
-        <input v-focus @change="updateTime" @focus="$event.target.select()" type="text" maxlength="2" name="hour" :value="hour" min="0" max="23" autocomplete="off" /><a>:</a>
+        <input v-focus="name" @change="updateTime" @focus="$event.target.select()" type="text" maxlength="2" name="hour" :value="hour" min="0" max="23" autocomplete="off" /><a>:</a>
         <input @change="updateTime" @focus="$event.target.select()" type="text" maxlength="2" name="min" :value="minute" min="0" max="59" autocomplete="off"/>
     </div>
 </template>
@@ -54,7 +54,7 @@ export default {
         updateTime(event){
             let name = event.srcElement.name;
             let value = event.srcElement.value;
-            console.log(value)
+            // console.log(value)
             // Checks if the value is within the boundries else adjust them
             if (name == "min"){
                 value <= 0 ? value = 0 : 

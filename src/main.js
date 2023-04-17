@@ -62,6 +62,9 @@ library.add(faEye)
 library.add(faEyeSlash)
 createApp(App).use(router).use(router).use(require('vue-cookies')).use(VueChartkick).component('font-awesome-icon', FontAwesomeIcon).directive('focus', {
   mounted: function (el, binding) {
-    el.focus()
+    if(binding.value != 'endTime') {
+      el.focus()
+    }
+
   }
 }).mount('#app')

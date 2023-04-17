@@ -247,6 +247,7 @@ export default {
   },
   data() {
     return {
+      autoSim: false,
       selectedSummary: 'None',
       treatment: ['Metformin', 'GLP', 'LAI', 'FAI'],
       external: ['Meals','PA','Stress'],
@@ -365,7 +366,13 @@ export default {
       this.updateGraphContent({ bool: true, key: par.type })
       // Updates boolean so that new sim is required
       this.updateHidden();
-      this.newSimRequired = true;
+            //Automatically simulates after change
+        if(this.autoSim) {
+        this.simulate();
+      } else {
+        // Updates boolean so that new sim is required
+        this.newSimRequired = true;
+      }
     },
     // Calls delete function in Parameters.js
     deleteParam(par) {
@@ -374,7 +381,13 @@ export default {
       this.updateGraphContent({ bool: true, key: par.type })
       // Updates boolean so that new sim is required
       this.updateHidden();
-      this.newSimRequired = true;
+                  //Automatically simulates after change
+                  if(this.autoSim) {
+        this.simulate();
+      } else {
+        // Updates boolean so that new sim is required
+        this.newSimRequired = true;
+      }
     },
     convertMinutesToTime(minutes) {
       const hours = Math.floor(minutes / 60);
@@ -389,8 +402,13 @@ export default {
       // Updates the graph content (false=delete from graph, true=adds to graph)
       this.updateGraphContent({ bool: false, key: par.type })
       this.updateGraphContent({ bool: true, key: par.type })
-      // Updates boolean so that new sim is required
-      this.newSimRequired = true;
+              //Automatically simulates after change
+              if(this.autoSim) {
+        this.simulate();
+      } else {
+        // Updates boolean so that new sim is required
+        this.newSimRequired = true;
+      }
     },
     // Calls updateRepeat function in Parameters.js
     updateRepeat(par) {
@@ -418,7 +436,7 @@ export default {
     },
     // Updates advanced simulation parameters
     updateAdvancedSimPar(par) {
-      console.log(par)
+      par.name === 'autosim' ? this.autoSim = par.val : null;
       par.name === "relTol" ? this.simPar.simSettings.rtol = parseFloat(par.val) :
         par.name === "stepSize" ? this.simPar.simSettings.hmin = parseFloat(par.val) :
           par.name === "dataFreq" ? this.simPar.simSettings.dataFrequencyRatio = parseFloat(par.val) : null
@@ -440,8 +458,13 @@ export default {
       // console.log(this.simPar.simSettings.HbA1c_interval)
       // console.log(par)
       // console.log(this.simPar.simSettings.processNoise_GH)
-      // Updates boolean so that new sim is required
-      this.newSimRequired = true;
+      // Autosimulates
+      if(this.autoSim) {
+        this.simulate();
+      } else {
+        // Updates boolean so that new sim is required
+        this.newSimRequired = true;
+      }
     },
     // Updates the glycemia interval
     updateGlycemiaInterval(par) {
@@ -449,7 +472,7 @@ export default {
     },
     // Calls the stateChange function in Display.js
     stateDisplayChange(par) {
-      console.log(par)
+      console.log(this.compareTo)
       // Updates the object
       this.displayStates[par.name][par.axis] = par.bool
       let response = Display.stateChange(par, this.Response, this.graphInfo, States.displayStates, this.compareTo, this.AxisTitle, this.compare);
@@ -480,29 +503,34 @@ export default {
     },
     // Updates advanced Params
     updateParam(par) {
-      console.log('updateParam', par)
+      this.simulate()
+      // console.log('updateParam', par)
       this.sim.Params[par.param] = parseFloat(par.value);
       if (par.param === "SPGU") {
         this.updateValueSlider({ type: "sens", val: parseFloat(par.value) })
       }
       this.ActivePatient = "";
-      // Updates boolean so that new sim is required
-      this.newSimRequired = true;
+      console.log(this.autoSim)
+      //Automatically simulates after change
+
+
     },
     // Updates advanced Basal
     updateBasal(par) {
-      console.log(par)
+      // console.log(par)
       this.sim.Basal[par.param] = parseFloat(par.value);
       this.ActivePatient = "";
-      // Updates boolean so that new sim is required
-      this.newSimRequired = true;
+      //Automatically simulates after change
+
     },
     updateValueSlider(par) {
-      console.log('updateSlider', par)
+      // console.log('updateSlider', par)
       Parameters.updateSlider(par, this.patient, this.sim);
       this.ActivePatient = "";
-      // Updates boolean so that new sim is required
-      this.newSimRequired = true;
+ 
+        // Updates boolean so that new sim is required
+        this.newSimRequired = true;
+
     },
     updateDisplayParameters(par) {
       this.display[par.key] = par.bool;
@@ -520,7 +548,7 @@ export default {
     },
     updateOde(solver) {
       this.simPar.simSettings.selected_solver = solver;
-      console.log('solver:', solver)
+      // console.log('solver:', solver)
     },
     updateSimTime(newTime) {
       this.simPar.time = newTime;
@@ -533,7 +561,10 @@ export default {
           this.updateGraphContent({ bool: true, key: key })
         }
       });
-      this.newSimRequired = true;
+
+        // Updates boolean so that new sim is required
+        this.newSimRequired = true;
+    
     },
     constructVector() {
       var minCount = this.simPar.time * 1440;
@@ -549,7 +580,6 @@ export default {
       // console.log('this.displayArray',this.displayArray)
     },
     saveNewResponse(name) {
-      console.log(this.savedParameters)
       if (!this.simRunning && this.Response.length) {
         var valid = true;
         name.trim().length === 0 ? valid = false : null;
@@ -652,12 +682,12 @@ export default {
               if (item.label === '[Current] ' + keys[i] + ' ' + this.displayStates[keys[i]].unit) {
                 // Generates the darker color for prev
                 var color = item.backgroundColor;
-                var colorSplit = color.split(",");
-                color = colorSplit[0] + "," + colorSplit[1] + ",30%)";
+                  var colorSplit = color.split(",")
+                  color = colorSplit[0] + "," + colorSplit[1] + "," + colorSplit[2] +",30%)";
                 // Removes the color so it's available
                 Display.removeColorInUse(item.backgroundColor);
                 // Return the new object
-                return { ...item, label: '[Previous] ' + keys[i] + ' ' + this.displayStates[keys[i]].unit, backgroundColor: color, borderColor: color }
+                return { ...item, label: '[Previous] ' + keys[i] + ' ' + this.displayStates[keys[i]].unit, backgroundColor: color, borderColor: color, borderWidth: 3}
               } else {
                 return item
               }
@@ -728,7 +758,7 @@ export default {
       // The simulation part
       if (window.Worker) {// Are Webworkers allowed on the browser
         // instantiate the simWorker 
-        console.log(this.simPar)
+        // console.log(this.simPar)
         this.simWorker = new SimWorker([this.sim, this.simPar]);
         this.simRunning = true;
         // Hooks onto the message event of the worker
@@ -790,7 +820,6 @@ export default {
             this.updateGraphContent({ bool: false, key: "FAI" })
             this.updateGraphContent({ bool: true, key: "FAI" })
           }
-          console.log(this.savedParameters.External.Current.data.Meals[0])
 
 
         });
@@ -806,7 +835,7 @@ export default {
       // console.log(this.Response[0].data.yout.fai)
       // console.log("Patient: ", this.patient)
       // console.log("Simpar: ", this.simPar)
-      console.log("Response", this.Response)
+      // console.log("Response", this.Response)
       // console.log(this.savedParameters)
       // console.log(this.sim)
       console.log(this.compare, this.compareTo)
@@ -952,6 +981,8 @@ export default {
       }
       // Requires a new sim when the patient is updated
       this.updateHidden()
+
+      // Updates boolean so that new sim is required
       this.newSimRequired = true;
     },
     // Boolean visibility stuff

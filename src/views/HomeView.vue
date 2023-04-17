@@ -453,7 +453,7 @@ export default {
     },
     // Updates advanced Params
     updateParam(par){
-      console.log('updateParam',par)
+      // console.log('updateParam',par)
       this.sim.Params[par.param] = parseFloat(par.value);
       if (par.param==="SPGU"){
         this.updateValueSlider({type:"sens",val:parseFloat(par.value)})
@@ -464,7 +464,7 @@ export default {
     },
     // Updates advanced Basal
     updateBasal(par){
-      console.log(par)
+      // console.log(par)
       this.sim.Basal[par.param] = parseFloat(par.value);
       this.ActivePatient = "";
       // Updates boolean so that new sim is required
@@ -581,7 +581,7 @@ export default {
           // has failed      
         })
 
-      console.log("Simulate") 
+      // console.log("Simulate") 
       this.constructVector();
       this.sim.setBasaldefGCPFIPF(this.simPar.initCond.GBPC0,this.simPar.initCond.IBPF0)
       // Updates the new sim required

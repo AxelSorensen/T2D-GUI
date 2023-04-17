@@ -4,12 +4,12 @@
 var Display = {
     // Predefined colors for the first 6 displayed states
     colors: [
-        "hsl(0, 100%, 50%)",
-        "hsl(109, 100%, 40%)",
-        "hsl(208, 100%, 50%)",
-        "hsl(27, 100%, 50%)",
-        "hsl(240, 100%, 50%)",
-        "hsl(290, 100%, 50%)",
+        "hsla(0, 100%, 50%,1)",
+        "hsla(109, 100%, 40%,1)",
+        "hsla(208, 100%, 50%,1)",
+        "hsla(27, 100%, 50%,1)",
+        "hsla(240, 100%, 50%,1)",
+        "hsla(290, 100%, 50%,1)",
     ],
     colorInUse: [false, false, false, false, false, false],
     /**
@@ -98,47 +98,50 @@ var Display = {
      * @returns 
      */
     datasetObj(label, axis, colorKey, primary, data, displayStates, graphInfo, primaryKey) {
-        // if (label !== colorKey) {
-        //     primary = false;
-        // }
-        label = label + ' ' + displayStates[colorKey].unit;
-        var color = "";
-        if (primary) {
-            if (!this.colorInUse[0]) {
-                color = this.colors[0];
-                this.colorInUse[0] = true;
-            }else if (!this.colorInUse[1]){
-                color = this.colors[1];
-                this.colorInUse[1] = true;
-            }else if (!this.colorInUse[2]){
-                color = this.colors[2];
-                this.colorInUse[2] = true;
-            }else if (!this.colorInUse[3]){
-                color = this.colors[3];
-                this.colorInUse[3] = true;
-            }else if (!this.colorInUse[4]){
-                color = this.colors[4];
-                this.colorInUse[4] = true;
-            }else if (!this.colorInUse[5]){
-                color = this.colors[5];
-                this.colorInUse[5] = true;
-            }else{
-                color = this.generateRandomColor();
-            }
-        }
-        else {
-            graphInfo.datasets.forEach(dataset => {
-                if (dataset.label == "[" + primaryKey+ "] " + colorKey + ' ' + displayStates[colorKey].unit && dataset.yAxisID == axis) {
-                    color = dataset.backgroundColor;
-                    var colorSplit = color.split(",")
-                    color = colorSplit[0] + "," + colorSplit[1] + ",30%)"
-                }
- 
-            });
-        }
-        return { label: label, yAxisID: axis, backgroundColor: color, borderColor: color, data: data, order: 1};
-        // Order is set to 1, so that all graphics with higher order will be drawn behind
-    },
+      // if (label !== colorKey) {
+      //     primary = false;
+      // }
+      label = label + ' ' + displayStates[colorKey].unit;
+      var color = "";
+      // var borderWidth = 3;
+      if (primary) {
+          if (!this.colorInUse[0]) {
+              color = this.colors[0];
+              this.colorInUse[0] = true;
+          }else if (!this.colorInUse[1]){
+              color = this.colors[1];
+              this.colorInUse[1] = true;
+          }else if (!this.colorInUse[2]){
+              color = this.colors[2];
+              this.colorInUse[2] = true;
+          }else if (!this.colorInUse[3]){
+              color = this.colors[3];
+              this.colorInUse[3] = true;
+          }else if (!this.colorInUse[4]){
+              color = this.colors[4];
+              this.colorInUse[4] = true;
+          }else if (!this.colorInUse[5]){
+              color = this.colors[5];
+              this.colorInUse[5] = true;
+          }else{
+              color = this.generateRandomColor();
+          }
+      }
+      else {
+          graphInfo.datasets.forEach(dataset => {
+              if (dataset.label == "[" + primaryKey+ "] " + colorKey + ' ' + displayStates[colorKey].unit && dataset.yAxisID == axis) {
+                  // borderWidth = 2;
+                  color = dataset.backgroundColor;
+                  var colorSplit = color.split(",")
+                  color = colorSplit[0] + "," + colorSplit[1] + "," + colorSplit[2] +",30%)";
+              }
+
+          });
+      }
+      // var borderdash;
+      // primary ? null : borderdash = [5,5];
+      return { label: label, yAxisID: axis, backgroundColor: color, borderColor: color, data: data};
+  },
     /**
      * Generates a random color in hsl format
      * @returns String of a hsl color
@@ -201,7 +204,7 @@ var Display = {
         // Generates necessary variables
         var oldName = compareTo;
         var newResponse = [];
-        console.log(Response)
+        // console.log(Response)
         Response.forEach(item => {
           item.name === newName ? newResponse = item : null
         });

@@ -35,7 +35,7 @@
         <div id="plot-against">
           <label>Plot: </label>
           <select name="compare" @change="changeCompare">
-
+            <option>None</option>
             <option :key="item.name" v-for="item in getCompare(compareTo)" :selected="item.name == compare">
               {{ item.name }}
             </option>

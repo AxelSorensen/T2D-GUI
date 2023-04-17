@@ -19,7 +19,7 @@
         <div id="zoom-settings">
           <TextIconButton class="zoom-btn" @click="$emit('zoomChange', this.showNumDays)" icon="fa-magnifying-glass">Zoom
           </TextIconButton>
-          to last <input type="number" :value="showNumDays" @change="zoomDaysAdjust($event, 'number')" /> Days
+          to last <input type="number" :value="showNumDays" @change="zoomDaysAdjust($event, 'number')" /> day(s)
         </div>
         <TextIconButton v-if="!important_click" icon="fa-circle-exclamation"
           :class="{ important_clicked: important_click }" color="hsl(0, 100%, 50%)" @click="toggleImportant()">Important
@@ -37,6 +37,10 @@
               <!-- <label for="odeSolver">ode Solver:</label><select @change="updateOde" v-model="selected_solver">
                             <option :key="solver" v-for="solver in solverList">{{solver}}</option>
                         </select>-->
+                        <div class="par"> <label>Auto simulate</label>
+                <input @change="update" name="autosim" type="checkbox"/>
+              </div>
+                       
               <div class="par">
                 <label for="relTol">Relative tolerance: </label><input @change="update" type="number" name="relTol"
                   :value="this.simPar.simSettings.rtol" step="0.00000001" />
@@ -240,7 +244,7 @@ export default {
     },
     // Updates the advanced simulation parameters
     update(event) {
-      event.srcElement.name === "clEnable" ? this.$emit("updateAdvancedSimPar", { name: event.srcElement.name, val: event.srcElement.checked }) : this.$emit("updateAdvancedSimPar", { name: event.srcElement.name, val: event.srcElement.value })
+      event.srcElement.name === "clEnable" || 'autosim' ? this.$emit("updateAdvancedSimPar", { name: event.srcElement.name, val: event.srcElement.checked }) : this.$emit("updateAdvancedSimPar", { name: event.srcElement.name, val: event.srcElement.value })
       // console.log({name:event.srcElement.name, val:event.srcElement.checked})
     },
     intervalChange(event) {
@@ -267,6 +271,7 @@ export default {
         val < 1 ? val = 1 : null
         val > this.simPar.time ? val = this.simPar.time : null
         this.showNumDays = parseInt(val);
+        this.$emit('zoomChange', this.showNumDays)
       }
     }
   },
@@ -362,6 +367,7 @@ export default {
 .header label {
   margin-left: 20px;
   margin-right: 5px;
+  text-align: left;
 }
 
 .header input {

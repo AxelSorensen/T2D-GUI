@@ -78,7 +78,7 @@ export default {
     zoom: function (newVal, oldVal) {
       // Scale time axis so everyting is displayed
       // newVal == false ? this.chartOptions.scales.x.min = 0*1440 : this.chartOptions.scales.x.min = this.xMax - this.xMin*1440;
-      console.log('zoom',newVal,oldVal)
+      // console.log('zoom',newVal,oldVal)
       this.chartOptions.plugins.zoom.zoom.pinch.enabled = newVal;
       this.graphScroll ? this.chartOptions.plugins.zoom.zoom.wheel.enabled = newVal : null;
     },
@@ -119,9 +119,6 @@ export default {
     graphScroll: function (newVal, oldVal) {
       this.chartOptions.plugins.zoom.zoom.wheel = newVal
     }
-  },
-  mounted() {
-    console.log(this.chartData)
   },
   data() {
     return {
