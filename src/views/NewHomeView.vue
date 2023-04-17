@@ -575,7 +575,7 @@ export default {
         var par = Parameters[key];
         this.simPar.parVector[key] = { name: par.Name, data: parFunction.generateValueArray(this.patient[key], par.Duration, minCount, this.simPar.repeat[key], false, {}) }
 
-        this.displayArray[key] = { label: par.Name, Key: key, yAxisID: par.axisID, borderColor: par.color, order: par.order, fill: par.fill, backgroundColor: par.fillColor || par.color, borderDash: par.borderDash, borderWidth: par.borderWidth, data: parFunction.generateValueArray(this.patient[key], par.Duration, minCount, this.simPar.repeat[key], true, (key == "LAI" || key == "FAI") ? (this.Response[0] != undefined ? (this.Response[0].data.CL != undefined ? this.Response[0].data.CL[key.toLowerCase()] : []) : {}) : {}) }
+        this.displayArray[key] = { label: par.Name, Key: key, yAxisID: par.axisID, borderColor: par.color, order: par.order, fill: par.fill, backgroundColor: par.fillColor || par.color, borderDash: par.borderDash, borderWidth: 2, data: parFunction.generateValueArray(this.patient[key], par.Duration, minCount, this.simPar.repeat[key], true, (key == "LAI" || key == "FAI") ? (this.Response[0] != undefined ? (this.Response[0].data.CL != undefined ? this.Response[0].data.CL[key.toLowerCase()] : []) : {}) : {}) }
       });
       // console.log('this.displayArray',this.displayArray)
     },
@@ -687,7 +687,7 @@ export default {
                 // Removes the color so it's available
                 Display.removeColorInUse(item.backgroundColor);
                 // Return the new object
-                return { ...item, label: '[Previous] ' + keys[i] + ' ' + this.displayStates[keys[i]].unit, backgroundColor: color, borderColor: color, borderWidth: 3}
+                return { ...item, label: '[Previous] ' + keys[i] + ' ' + this.displayStates[keys[i]].unit, backgroundColor: color, borderColor: color}
               } else {
                 return item
               }

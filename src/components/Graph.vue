@@ -6,6 +6,7 @@
         @updateSimTime="$emit('updateSimTime', $event)" @updateOde="$emit('updateOde', $event)" @zoomChange="zoomChange"
         @toggleVisible="$emit('toggleVisible')" @updateAdvancedSimPar="$emit('updateAdvancedSimPar', $event)"
         @updateGlycemiaInterval="$emit('updateGlycemiaInterval', $event)" />
+        
       <!--
         Subheader (States, patient watermark, maximize)
     -->

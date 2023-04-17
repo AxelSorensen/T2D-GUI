@@ -4,12 +4,12 @@
 var Display = {
     // Predefined colors for the first 6 displayed states
     colors: [
-        "hsla(0, 100%, 50%,1)",
+        "hsla(0, 100%, 50%, 1)",
         "hsla(109, 100%, 40%,1)",
         "hsla(208, 100%, 50%,1)",
         "hsla(27, 100%, 50%,1)",
-        "hsla(240, 100%, 50%,1)",
-        "hsla(290, 100%, 50%,1)",
+        "hsla(240, 100%, 40%,1)",
+        "hsla(290, 100%, 40%,1)",
     ],
     colorInUse: [false, false, false, false, false, false],
     /**
@@ -148,7 +148,7 @@ var Display = {
      */
     generateRandomColor() {
         var num = Math.floor(Math.random() * 360);
-        var color = "hsl(" + num + ",100%,50%)";
+        var color = "hsla(" + num + ",100%,50%,1)";
         return color
     },
     /**
